@@ -432,7 +432,7 @@
             <a href="#enigme">🔍 L'ÉNIGME</a>
             <a href="#soiree">🎶 SOIRÉE 90S</a>
             <a href="#trajets">🚗 TRAJETS</a>
-            <a href="#rsvp">✉️ RSVP</a>
+            <a href="rsvp.html">✉️ RSVP</a>
             <a href="#livre-or">📖 LIVRE D'OR</a>
         </div>
 
@@ -458,7 +458,12 @@
                                 <span class="label">Non</span>
                             </div>
                         </div>
-                        <div class="counter-label">Dernière mise à jour : <span id="lastUpdate">maintenant</span></div>
+                        <div class="counter-label">
+                            <em style="font-size: 10px; color: #999999;">
+                                Pour des raisons de confidentialité,<br>
+                                les compteurs sont mis à jour manuellement
+                            </em>
+                        </div>
                     </div>
 
                     <!-- INFOS SUR LE LIEU -->
@@ -722,32 +727,18 @@
                             <p>
                                 <strong>📅 DATE LIMITE :</strong> 15 septembre 2026
                             </p>
-                            
-                            <form onsubmit="submitRSVP(); return false;">
-                                <input type="text" name="prenom" placeholder="Prénom *" required>
-                                <input type="text" name="nom" placeholder="Nom *" required>
-                                <input type="email" name="email" placeholder="Email *" required>
-                                <input type="tel" name="telephone" placeholder="Téléphone">
-                                
-                                <select name="reponse" required>
-                                    <option value="" disabled selected>Ta réponse *</option>
-                                    <option value="oui">✅ Oui, je viens !</option>
-                                    <option value="peutEtre">🤔 Peut-être</option>
-                                    <option value="non">❌ Non, désolé(e)</option>
-                                </select>
-                                
-                                <select name="covoit">
-                                    <option value="" disabled selected>Covoiturage</option>
-                                    <option value="conducteur">🚗 Je peux conduire (places : ...)</option>
-                                    <option value="passager">🚐 Je cherche un covoiturage</option>
-                                    <option value="non">❌ Pas besoin</option>
-                                </select>
-                                
-                                <textarea name="message" placeholder="Message / Allergies / Préférences..."></textarea>
-                                
-                                <button type="submit">JE M'INSCRIS !</button>
-                            </form>
-                            <p id="rsvpMessage" style="margin-top: 10px; color: #FFD700; font-size: 11px; text-align: center;"></p>
+                            <p>
+                                <strong>🔒 TES RÉPONSES SONT SÉCURISÉES !</strong><br>
+                                <em style="font-size: 10px; color: #999999;">(Formulaire séparé - données non visibles publiquement)</em>
+                            </p>
+                            <p style="text-align: center; margin: 15px 0;">
+                                <a href="rsvp.html" style="background-color: #FF1493; color: #FFFFFF; padding: 10px 20px; text-decoration: none; font-family: 'Arial Black', sans-serif; font-size: 12px; display: inline-block; border: none; cursor: pointer; font-weight: bold; letter-spacing: 1px;">
+                                    ✉️ RÉPONDRE À L'INVITATION
+                                </a>
+                            </p>
+                            <p style="text-align: center; font-size: 10px; color: #999999; margin-top: 10px;">
+                                Clique ci-dessus pour accéder au formulaire sécurisé
+                            </p>
                         </div>
                     </div>
 
@@ -823,6 +814,7 @@
             <p>
                 © 2026 - Mon Skyblog Anniversaire | 
                 <a href="#accueil">Accueil</a> | 
+                <a href="rsvp.html">RSVP</a> | 
                 <a href="#livre-or">Livre d'Or</a> | 
                 <a href="#">Contact</a> | 
                 <a href="#">MSN</a> | 
@@ -835,8 +827,25 @@
         </div>
     </div>
 
+        let rsvpData = [];
+        let messages = [
+            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
+        ];
+        let covoitData = [
+            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
+        ];
+        let guestCounts = { oui: 0, peutEtre: 0, non: 0 };
+=======
     <script>
         // ===== DONNÉES STOCKÉES (simulation base de données) =====
+        let messages = [
+            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
+        ];
+        let covoitData = [
+            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
+        ];
+        // RSVP data is now handled securely via the separate RSVP page
+        // No client-side storage of guest responses for privacy=====
         let rsvpData = [];
         let messages = [
             {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
@@ -874,7 +883,84 @@
         
         setInterval(updateVisitorCounter, 15000);
 
+        function updateCounters() {
+            updateGuestCounts();
+            updateCovoitList();
+        }
+
+        function updateGuestCounts() {
+            document.getElementById('ouiCount').textContent = guestCounts.oui;
+            document.getElementById('peutEtreCount').textContent = guestCounts.peutEtre;
+            document.getElementById('nonCount').textContent = guestCounts.non;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
+        }
+
+        // ===== RSVP =====
+        function submitRSVP() {
+            const form = event.target;
+            const data = {
+                prenom: form.prenom.value,
+                nom: form.nom.value,
+                email: form.email.value,
+                telephone: form.telephone.value,
+                reponse: form.reponse.value,
+                covoit: form.covoit.value,
+                message: form.message.value
+            };
+            
+            if (!data.prenom || !data.nom || !data.email || !data.reponse) {
+                document.getElementById('rsvpMessage').textContent = 'Veuillez remplir tous les champs obligatoires !';
+                return;
+            }
+            
+            // Mettre à jour les compteurs
+            if (data.reponse === 'oui') guestCounts.oui++;
+            else if (data.reponse === 'peutEtre') guestCounts.peutEtre++;
+            else if (data.reponse === 'non') guestCounts.non++;
+            
+            // Ajouter aux données covoiturage si conducteur
+            if (data.covoit === 'conducteur') {
+                covoitData.push({
+                    nom: data.prenom,
+                    depart: '[À préciser]',
+                    places: '[À préciser]',
+                    heure: '[À préciser]',
+                    jour: '[À préciser]'
+                });
+            }
+            
+            // Stocker les données
+            rsvpData.push(data);
+            
+            // Message de confirmation
+            let message = '';
+            if (data.reponse === 'oui') message = 'Super ! Ta participation est confirmée.';
+            else if (data.reponse === 'peutEtre') message = 'On te tient au courant !';
+            else message = 'Dommage, on se rattrapera !';
+            
+            document.getElementById('rsvpMessage').textContent = 'Merci ' + data.prenom + ' ! ' + message;
+            form.reset();
+            
+            // Mettre à jour les affichages
+            updateGuestCounts();
+            updateCovoitList();
+            
+            // Réinitialiser le message après 5 secondes
+            setTimeout(() => {
+                document.getElementById('rsvpMessage').textContent = '';
+            }, 5000);
+        }
+
+        // ===== COVOITURAGE =====
+=======
         // ===== COMPTEUR D'INVITÉS =====
+        // Note: Guest counts are now managed via the secure RSVP form
+        // The counter below displays static info or can be updated manually
+        function updateCounters() {
+            updateCovoitList();
+        }
+
+        // ===== COVOITURAGE ==========
         function updateCounters() {
             updateGuestCounts();
             updateCovoitList();
