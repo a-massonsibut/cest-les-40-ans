@@ -1,19 +1,9 @@
 # Netlify configuration for secure form handling
 [build]
   publish = "."
-  functions = "functions"
 
 # Enable form detection and processing
-[forms]
-  # Enable Netlify Forms for the RSVP form
-  rsvp = "rsvp.html"
-
-# Redirects
-[[redirects]]
-  from = "/success"
-  to = "/rsvp.html"
-  status = 302
-  force = false
+# Netlify will automatically detect forms with the 'netlify' attribute
 
 # Headers for security
 [[headers]]

@@ -378,11 +378,11 @@
                     </div>
 
                     <!-- Form -->
-                    <form name="rsvp" method="POST" netlify netlify-honeypot="bot-field" action="/success" id="rsvpForm">
-                        <!-- Honeypot field (hidden) -->
+                    <form name="rsvp" method="POST" netlify netlify-honeypot="bot-field" id="rsvpForm">
+                        <!-- Honeypot field (hidden) - required for spam protection -->
                         <input type="hidden" name="bot-field" />
                         
-                        <!-- Form ID for Netlify -->
+                        <!-- Form name for Netlify - MUST match the form name attribute -->
                         <input type="hidden" name="form-name" value="rsvp" />
                         
                         <div class="form-group">
