@@ -1,116 +1,202 @@
-# RSVP Setup Guide
+# Guide de configuration RSVP
 
-## Overview
+## 📋 Résumé
 
-This repository now includes a **secure RSVP system** that keeps guest responses private and not publicly visible.
+Ce système permet de :
+1. **Collecter les réponses RSVP de manière sécurisée** via Netlify Forms
+2. **Afficher les compteurs d'invités** (Oui, Peut-être, Non) sur la page d'accueil
+3. **Garder les réponses privées** (uniquement visibles par vous dans Netlify)
 
-## What Changed
+---
 
-1. **New `rsvp.html` page**: A dedicated, secure form page for RSVP responses
-2. **Removed client-side storage**: RSVP data is no longer stored in JavaScript variables (which would be visible in the page source)
-3. **Netlify Forms integration**: Uses Netlify's secure form handling service
-4. **Privacy notice**: Clear explanation that responses are secure and private
+## 🚀 Configuration rapide
 
-## How It Works
+### Étape 1 : Déployer sur Netlify
 
-### For Guests
-- Guests click on the RSVP link in the navigation or main page
-- They are taken to `rsvp.html` where they fill out the form
-- Form submissions are sent securely via Netlify Forms
-- Responses are **NOT** visible on the public website
-- Only the site owner (Agnès) can access responses via Netlify's dashboard
+1. Créez un compte Netlify (gratuit) : https://www.netlify.com/
+2. Importez votre dépôt GitHub
+3. Déployez le site
+4. Attendez que le déploiement soit terminé
 
-### For the Organizer (Agnès)
+### Étape 2 : Tester le formulaire
 
-#### Option 1: Deploy to Netlify (Recommended)
+1. Allez sur `https://votre-site.netlify.app/rsvp.html`
+2. Remplissez le formulaire avec un test
+3. Soumettez-le
+4. **Vérifiez dans Netlify** :
+   - Allez dans votre tableau de bord Netlify
+   - Cliquez sur votre site
+   - Allez dans l'onglet **"Forms"**
+   - Vous devriez voir votre soumission dans la liste "rsvp"
 
-1. **Create a Netlify account** (free) at https://www.netlify.com/
-2. **Deploy the site**:
-   - Go to Sites → Import from Git
-   - Connect your GitHub repository
-   - Deploy the site
-3. **Access RSVP responses**:
-   - Go to your site in Netlify dashboard
-   - Click on "Forms" in the left menu
-   - All RSVP submissions will appear there
-   - You can export responses as CSV
+✅ **Si vous voyez votre soumission, le formulaire fonctionne !**
 
-#### Option 2: Use Another Form Service
+---
 
-If you prefer not to use Netlify, you can modify the form in `rsvp.html` to submit to:
-- **Google Forms**: Replace the form with a Google Forms embed
-- **Formspree**: Change the form action to `https://formspree.io/f/YOUR_FORM_ID`
-- **Other services**: Update the form action and method accordingly
+## 📊 Mettre à jour les compteurs d'invités
 
-## Security Features
+Il y a **2 méthodes** pour mettre à jour les compteurs :
 
-✅ **No client-side storage**: RSVP data is not stored in JavaScript variables
-✅ **HTTPS encryption**: All form submissions are encrypted in transit
-✅ **Private access**: Only you can view responses via Netlify dashboard
-✅ **Honeypot protection**: Built-in spam protection
-✅ **Security headers**: Additional protection via netlify.toml
+### Méthode A : Automatique (Recommandé)
 
-## Customization
+Utilisez **GitHub Actions** pour mettre à jour automatiquement les compteurs quand le PR est mergé.
 
-### Update the Form Fields
-Edit `rsvp.html` to modify:
-- Questions asked
-- Required fields
-- Styling to match your theme
+1. **Créez un fichier** `.github/workflows/update-counters.yml` :
 
-### Update Privacy Notice
-Modify the privacy notice in `rsvp.html` to reflect your actual data handling practices.
+```yaml
+name: Update RSVP Counters
 
-### Update Guest Counter
-The guest counter on the main page now **automatically updates** based on RSVP submissions!
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/rsvp-counts.json'
 
-There are two ways to make this work:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node update-counters.js
+      - run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add data/rsvp-counts.json
+          git commit -m "Auto-update RSVP counts" || echo "No changes"
+          git push
+```
 
-#### Option A: Automatic Updates (Recommended)
-1. Deploy your site to Netlify
-2. Go to your site in Netlify dashboard
-3. Click **Site settings** → **Forms**
-4. Find your "rsvp" form
-5. Click **Settings** (⚙️) next to the form
-6. Scroll down to **Submission notifications**
-7. Add a new **Webhook notification**
-8. Set the URL to: `https://your-site.netlify.app/.netlify/functions/update-rsvp-counts`
-9. Select **All submissions**
-10. Save
+2. **Mettez à jour manuellement** `data/rsvp-counts.json` quand vous recevez de nouvelles soumissions
+3. **Commitez et poussez** - GitHub Actions s'occupera du reste
 
-Now every time someone submits the RSVP form, the counters will update automatically!
+### Méthode B : Manuel (Plus simple)
 
-#### Option B: Manual Updates
-If you prefer not to use webhooks, you can manually update the counts:
-1. Open `data/rsvp-counts.json`
-2. Update the numbers for "oui", "peutEtre", and "non"
-3. Update the "lastUpdated" date
-4. Commit and push the changes
-5. The counters will update on the next page load
+**La méthode la plus simple et la plus fiable** :
 
-## Files Modified
+1. **Allez dans Netlify** → onglet **Forms**
+2. **Comptez les soumissions** :
+   - Combien de "oui" ?
+   - Combien de "peutEtre" ?
+   - Combien de "non" ?
+3. **Éditez le fichier** `data/rsvp-counts.json` :
 
-- `index.html`: Removed client-side RSVP form and storage, added link to RSVP page
-- `rsvp.html`: New secure RSVP form page
-- `netlify.toml`: Configuration for Netlify Forms and security headers
-- `RSVP_SETUP.md`: This guide
+```json
+{
+  "counts": {
+    "oui": 5,
+    "peutEtre": 2,
+    "non": 1
+  },
+  "total": 8,
+  "lastUpdated": "2026-06-14T15:30:00Z"
+}
+```
 
-## Testing
+4. **Commitez et poussez** :
+```bash
+git add data/rsvp-counts.json
+git commit -m "Update RSVP counts: 5 oui, 2 peut-être, 1 non"
+git push
+```
 
-1. Open `rsvp.html` in a browser
-2. Fill out the form and submit
-3. Check that the form submits successfully
-4. Verify responses appear in your Netlify dashboard (if deployed)
+5. **Attendez le déploiement** (1-2 minutes)
+6. **Rafraîchissez votre site** - les compteurs seront mis à jour !
 
-## Important Notes
+### Méthode C : Avec un script (Pour les utilisateurs avancés)
 
-- **Do NOT** add any JavaScript that stores RSVP data in variables
-- **Do NOT** display RSVP responses on the public website
-- **Always** use HTTPS for your deployed site
-- **Regularly** check your Netlify Forms dashboard for new submissions
+1. Installez Node.js sur votre machine
+2. Exécutez le script :
+```bash
+node update-counters.js oui=5 peutEtre=2 non=1
+```
+3. Commitez et poussez le fichier mis à jour
 
-## Need Help?
+---
 
-If you have questions about setting this up, contact the repository maintainer or check Netlify's documentation:
-- Netlify Forms: https://docs.netlify.com/forms/setup/
-- Netlify Security: https://docs.netlify.com/security/
+## 🔍 Vérifier que tout fonctionne
+
+### 1. Le formulaire fonctionne ?
+- [ ] Je vois mes soumissions dans Netlify → Forms
+- [ ] Les emails de notification arrivent (si configuré)
+
+### 2. Les compteurs s'affichent ?
+- [ ] Sur la page d'accueil, je vois les nombres dans les compteurs
+- [ ] La date de dernière mise à jour s'affiche
+
+### 3. Les compteurs se mettent à jour ?
+- [ ] Après avoir modifié `data/rsvp-counts.json` et poussé, les compteurs changent
+
+---
+
+## ⚠️ Problèmes courants
+
+### Problème : "Le formulaire ne soumet pas"
+**Solutions :**
+- Vérifiez que le site est déployé sur Netlify (pas en local)
+- Vérifiez que le formulaire a bien l'attribut `netlify` :
+  ```html
+  <form name="rsvp" method="POST" netlify ...>
+  ```
+- Vérifiez qu'il y a bien un champ caché `form-name` :
+  ```html
+  <input type="hidden" name="form-name" value="rsvp" />
+  ```
+
+### Problème : "Les compteurs ne se mettent pas à jour"
+**Solutions :**
+- Avez-vous **commité et poussé** le fichier `data/rsvp-counts.json` ?
+- Avez-vous **attendu le déploiement** (1-2 minutes) ?
+- Avez-vous **rafraîchi la page** (Ctrl+F5) ?
+- Vérifiez la console du navigateur (F12 → Console) pour voir s'il y a des erreurs
+
+### Problème : "Je ne vois pas le fichier data/rsvp-counts.json sur GitHub"
+**Solution :**
+- Le fichier est dans la branche `vibe/secure-rsvp-form-fb9ba3`
+- URL directe : https://github.com/a-massonsibut/cest-les-40-ans/blob/vibe/secure-rsvp-form-fb9ba3/data/rsvp-counts.json
+- Si vous voulez le voir dans `main`, il faut merger le PR
+
+---
+
+## 📚 Fichiers importants
+
+| Fichier | Description |
+|--------|-------------|
+| `rsvp.html` | Page du formulaire RSVP |
+| `index.html` | Page d'accueil avec les compteurs |
+| `data/rsvp-counts.json` | Données des compteurs (à mettre à jour) |
+| `update-counters.js` | Script pour mettre à jour les compteurs |
+| `netlify.toml` | Configuration Netlify |
+
+---
+
+## 🎯 Résumé des étapes pour faire fonctionner les compteurs
+
+1. **Déployer sur Netlify** ✅
+2. **Tester le formulaire** (vous devriez voir les soumissions dans Netlify Forms) ✅
+3. **Compter les soumissions** dans Netlify Forms
+4. **Mettre à jour** `data/rsvp-counts.json` avec les bons nombres
+5. **Commiter et pousser** les changements
+6. **Attendre le déploiement** (1-2 min)
+7. **Rafraîchir la page d'accueil** → Les compteurs devraient être mis à jour ! 🎉
+
+---
+
+## 💡 Conseil
+
+**Commencez par la Méthode B (manuelle)** - c'est la plus simple et la plus fiable.
+Une fois que vous êtes à l'aise, vous pourrez passer à l'automatisation avec GitHub Actions.
+
+---
+
+## 🆘 Besoin d'aide ?
+
+Si quelque chose ne fonctionne pas :
+1. Décrivez exactement ce que vous avez fait
+2. Décrivez ce qui ne fonctionne pas
+3. Partagez les messages d'erreur (s'il y en a)
+
+Je suis là pour vous aider ! 😊

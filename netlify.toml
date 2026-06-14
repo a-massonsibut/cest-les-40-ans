@@ -1,18 +1,8 @@
-# Netlify configuration for secure form handling
+# Configuration Netlify simple pour le site
 [build]
   publish = "."
-  functions = "functions"
 
-# Enable form detection and processing
-# Netlify will automatically detect forms with the 'netlify' attribute
-
-# Redirects
-[[redirects]]
-  from = "/api/rsvp-counts"
-  to = "/.netlify/functions/get-rsvp-counts-simple"
-  status = 200
-
-# Headers for security
+# Headers de sécurité
 [[headers]]
   for = "/*"
   [headers.values]
