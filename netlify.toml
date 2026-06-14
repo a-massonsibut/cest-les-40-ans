@@ -1,9 +1,16 @@
 # Netlify configuration for secure form handling
 [build]
   publish = "."
+  functions = "functions"
 
 # Enable form detection and processing
 # Netlify will automatically detect forms with the 'netlify' attribute
+
+# Redirects
+[[redirects]]
+  from = "/api/rsvp-counts"
+  to = "/.netlify/functions/get-rsvp-counts-simple"
+  status = 200
 
 # Headers for security
 [[headers]]
@@ -12,4 +19,3 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://media.giphy.com https://via.placeholder.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'"

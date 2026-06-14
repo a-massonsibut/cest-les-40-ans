@@ -1,0 +1,8 @@
+{
+  "name": "rsvp-functions",
+  "version": "1.0.0",
+  "description": "Netlify functions for RSVP handling",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {}
+}

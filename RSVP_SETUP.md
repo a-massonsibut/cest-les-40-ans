@@ -62,9 +62,31 @@ Edit `rsvp.html` to modify:
 Modify the privacy notice in `rsvp.html` to reflect your actual data handling practices.
 
 ### Update Guest Counter
-Since RSVP responses are now private, the guest counter on the main page shows a message that counts are updated manually. You can:
-1. Manually update the numbers in `index.html` based on actual responses
-2. Or remove the counter entirely if you prefer
+The guest counter on the main page now **automatically updates** based on RSVP submissions!
+
+There are two ways to make this work:
+
+#### Option A: Automatic Updates (Recommended)
+1. Deploy your site to Netlify
+2. Go to your site in Netlify dashboard
+3. Click **Site settings** → **Forms**
+4. Find your "rsvp" form
+5. Click **Settings** (⚙️) next to the form
+6. Scroll down to **Submission notifications**
+7. Add a new **Webhook notification**
+8. Set the URL to: `https://your-site.netlify.app/.netlify/functions/update-rsvp-counts`
+9. Select **All submissions**
+10. Save
+
+Now every time someone submits the RSVP form, the counters will update automatically!
+
+#### Option B: Manual Updates
+If you prefer not to use webhooks, you can manually update the counts:
+1. Open `data/rsvp-counts.json`
+2. Update the numbers for "oui", "peutEtre", and "non"
+3. Update the "lastUpdated" date
+4. Commit and push the changes
+5. The counters will update on the next page load
 
 ## Files Modified
 
