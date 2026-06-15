@@ -1,0 +1,11 @@
+# Configuration Netlify simple pour le site
+[build]
+  publish = "."
+
+# Headers de sécurité
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
