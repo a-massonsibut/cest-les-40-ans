@@ -416,33 +416,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="covoit">Covoiturage</label>
-                            <select id="covoit" name="covoit">
-                                <option value="" disabled selected>Covoiturage</option>
-                                <option value="conducteur">🚗 Je peux conduire (précise le nombre de places ci-dessous)</option>
-                                <option value="passager">🚐 Je cherche un covoiturage</option>
-                                <option value="non">❌ Pas besoin</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group" id="placesGroup" style="display: none;">
-                            <label for="places">Nombre de places disponibles (si conducteur)</label>
-                            <input type="number" id="places" name="places" placeholder="Nombre de places" min="1" max="10">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="depart">Ville de départ (pour covoiturage)</label>
-                            <input type="text" id="depart" name="depart" placeholder="Ex: Paris, Lyon, Grenoble...">
-                        </div>
-
-                        <div class="form-group">
                             <label for="allergies">Allergies / Régimes alimentaires</label>
                             <textarea id="allergies" name="allergies" placeholder="Si tu as des allergies ou des préférences alimentaires..."></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="message">Message / Questions</label>
-                            <textarea id="message" name="message" placeholder="Un message pour l'organisateur ?"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -487,18 +462,6 @@
     </div>
 
     <script>
-        // Show/hide places field based on covoit selection
-        const covoitSelect = document.getElementById('covoit');
-        const placesGroup = document.getElementById('placesGroup');
-        
-        covoitSelect.addEventListener('change', function() {
-            if (this.value === 'conducteur') {
-                placesGroup.style.display = 'block';
-            } else {
-                placesGroup.style.display = 'none';
-            }
-        });
-
         // Form submission handling
         const form = document.getElementById('rsvpForm');
         const submitBtn = document.getElementById('submitBtn');
