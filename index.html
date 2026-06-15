@@ -278,6 +278,54 @@
             background-color: #FF69B4;
         }
 
+        /* ===== RSVP BUTTON STYLE ===== */
+        .rsvp-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF1493, #FF69B4, #FF1493);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 12px 25px;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rsvp-button:hover {
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #FF69B4);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .rsvp-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 5px rgba(255, 20, 147, 0.5);
+        }
+
+        .rsvp-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .rsvp-button:hover::before {
+            left: 100%;
+        }
+
         /* ===== COUNTER STYLE ===== */
         .counter-display {
             font-family: "Arial Black", sans-serif;
@@ -432,7 +480,7 @@
             <a href="#enigme">🔍 L'ÉNIGME</a>
             <a href="#soiree">🎶 SOIRÉE 90S</a>
             <a href="#trajets">🚗 TRAJETS</a>
-            <a href="#rsvp">✉️ RSVP</a>
+            <a href="rsvp.html">✉️ RSVP</a>
             <a href="#livre-or">📖 LIVRE D'OR</a>
         </div>
 
@@ -458,7 +506,9 @@
                                 <span class="label">Non</span>
                             </div>
                         </div>
-                        <div class="counter-label">Dernière mise à jour : <span id="lastUpdate">maintenant</span></div>
+                        <div class="counter-label">
+                            Dernière mise à jour : <span id="lastUpdate">chargement...</span>
+                        </div>
                     </div>
 
                     <!-- INFOS SUR LE LIEU -->
@@ -669,6 +719,42 @@
                                     <td>Bracelets fluo, colliers en plastique</td>
                                 </tr>
                             </table>
+                            
+                            <h3 style="color: #FF1493; font-family: 'Arial Black', sans-serif; margin: 15px 0 10px;">🎵 PLAYLIST :</h3>
+                            <p>
+                                Écoute la playlist officielle de la soirée directement ici :
+                            </p>
+                            
+                            <!-- Lecteur Spotify embarqué -->
+                            <div style="text-align: center; margin: 15px 0;">
+                                <iframe src="https://open.spotify.com/embed/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                        width="100%" 
+                                        height="380" 
+                                        frameborder="0" 
+                                        allowtransparency="true" 
+                                        allow="encrypted-media">
+                                </iframe>
+                            </div>
+                            
+                            <p style="text-align: center; margin: 10px 0;">
+                                <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                   style="color: #1DB954; font-weight: bold; text-decoration: none;"
+                                   target="_blank">
+                                    🎧 Écouter sur Spotify →
+                                </a>
+                            </p>
+                            
+                            <p style="text-align: center; margin-top: 15px;">
+                                <strong>💿 Tu veux ajouter un titre ?</strong><br>
+                                <em style="color: #CCCCCC;">
+                                    Connecte-toi à Spotify pour contribuer à la playlist avec tes titres préférés des années 90 !
+                                    <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                       style="color: #1DB954; text-decoration: none;"
+                                       target="_blank">
+                                        →
+                                    </a>
+                                </em>
+                            </p>
                         </div>
                     </div>
                 </td>
@@ -692,32 +778,20 @@
                             <p>
                                 <strong>📅 DATE LIMITE :</strong> 15 septembre 2026
                             </p>
+                            <p>
+                                <strong>🔒 TES RÉPONSES SONT SÉCURISÉES !</strong><br>
+                                <em style="font-size: 10px; color: #999999;">Formulaire séparé - données privées</em>
+                            </p>
                             
-                            <form onsubmit="submitRSVP(); return false;">
-                                <input type="text" name="prenom" placeholder="Prénom *" required>
-                                <input type="text" name="nom" placeholder="Nom *" required>
-                                <input type="email" name="email" placeholder="Email *" required>
-                                <input type="tel" name="telephone" placeholder="Téléphone">
-                                
-                                <select name="reponse" required>
-                                    <option value="" disabled selected>Ta réponse *</option>
-                                    <option value="oui">✅ Oui, je viens !</option>
-                                    <option value="peutEtre">🤔 Peut-être</option>
-                                    <option value="non">❌ Non, désolé(e)</option>
-                                </select>
-                                
-                                <select name="covoit">
-                                    <option value="" disabled selected>Covoiturage</option>
-                                    <option value="conducteur">🚗 Je peux conduire (places : ...)</option>
-                                    <option value="passager">🚐 Je cherche un covoiturage</option>
-                                    <option value="non">❌ Pas besoin</option>
-                                </select>
-                                
-                                <textarea name="message" placeholder="Message / Allergies / Préférences..."></textarea>
-                                
-                                <button type="submit">JE M'INSCRIS !</button>
-                            </form>
-                            <p id="rsvpMessage" style="margin-top: 10px; color: #FFD700; font-size: 11px; text-align: center;"></p>
+                            <!-- Bouton RSVP amélioré -->
+                            <div style="text-align: center; margin: 15px 0;">
+                                <div class="gif-container" style="margin-bottom: 10px;">
+                                    <img src="https://media.giphy.com/media/l0HU7JyXcB2v48jQY/giphy.gif" alt="RSVP" width="120">
+                                </div>
+                                <a href="rsvp.html" class="rsvp-button">
+                                    ✉️ RÉPONDRE À L'INVITATION
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -768,41 +842,16 @@
 
                     <!-- MUSIQUE -->
                     <div class="box">
-                        <h3>🎵 PLAYLIST SPOTIFY</h3>
-                        <p style="text-align: center; margin-bottom: 10px;">
-                            Écoute la playlist officielle de la soirée directement ici :
-                        </p>
-                        
-                        <!-- Lecteur Spotify embarqué -->
-                        <div style="text-align: center; margin: 10px 0;">
-                            <iframe src="https://open.spotify.com/embed/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                                    width="100%" 
-                                    height="152" 
-                                    frameborder="0" 
-                                    allowtransparency="true" 
-                                    allow="encrypted-media">
-                            </iframe>
-                        </div>
-                        
-                        <p style="text-align: center; margin: 10px 0;">
-                            <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                               style="color: #1DB954; font-weight: bold; text-decoration: none;"
-                               target="_blank">
-                                🎧 Écouter sur Spotify →
-                            </a>
-                        </p>
-                        
-                        <p style="text-align: center; margin-top: 10px;">
-                            <strong>💿 Tu veux ajouter un titre ?</strong><br>
-                            <em style="color: #CCCCCC;">
-                                Connecte-toi à Spotify pour contribuer à la playlist avec tes titres préférés des années 90 !
-                                <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                                   style="color: #1DB954; text-decoration: none;"
-                                   target="_blank">
-                                    →
-                                </a>
-                            </em>
-                        </p>
+                        <h3>🎵 LECTEUR MUSICAL</h3>
+                        <select id="musicSelect" onchange="changeMusic();">
+                            <option value="">-- Sélectionne une musique --</option>
+                            <option value="backstreet">Backstreet Boys - I Want It That Way</option>
+                            <option value="britney">Britney Spears - Baby One More Time</option>
+                            <option value="spice">Spice Girls - Wannabe</option>
+                        </select>
+                        <button onclick="playMusic();">▶️ Play</button>
+                        <button onclick="stopMusic();">⏹️ Stop</button>
+                        <p id="nowPlaying" style="margin-top: 5px; font-size: 10px; color: #999999;"></p>
                     </div>
 
                     <!-- PUBLICITE -->
@@ -818,6 +867,7 @@
             <p>
                 © 2026 - Mon Skyblog Anniversaire | 
                 <a href="#accueil">Accueil</a> | 
+                <a href="rsvp.html">RSVP</a> | 
                 <a href="#livre-or">Livre d'Or</a> | 
                 <a href="#">Contact</a> | 
                 <a href="#">MSN</a> | 
@@ -830,8 +880,25 @@
         </div>
     </div>
 
+        let rsvpData = [];
+        let messages = [
+            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
+        ];
+        let covoitData = [
+            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
+        ];
+        let guestCounts = { oui: 0, peutEtre: 0, non: 0 };
+=======
     <script>
         // ===== DONNÉES STOCKÉES (simulation base de données) =====
+        let messages = [
+            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
+        ];
+        let covoitData = [
+            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
+        ];
+        // RSVP data is now handled securely via the separate RSVP page
+        // No client-side storage of guest responses for privacy=====
         let rsvpData = [];
         let messages = [
             {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
@@ -869,7 +936,123 @@
         
         setInterval(updateVisitorCounter, 15000);
 
+        function updateCounters() {
+            updateGuestCounts();
+            updateCovoitList();
+        }
+
+        function updateGuestCounts() {
+            document.getElementById('ouiCount').textContent = guestCounts.oui;
+            document.getElementById('peutEtreCount').textContent = guestCounts.peutEtre;
+            document.getElementById('nonCount').textContent = guestCounts.non;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
+        }
+
+        // ===== RSVP =====
+        function submitRSVP() {
+            const form = event.target;
+            const data = {
+                prenom: form.prenom.value,
+                nom: form.nom.value,
+                email: form.email.value,
+                telephone: form.telephone.value,
+                reponse: form.reponse.value,
+                covoit: form.covoit.value,
+                message: form.message.value
+            };
+            
+            if (!data.prenom || !data.nom || !data.email || !data.reponse) {
+                document.getElementById('rsvpMessage').textContent = 'Veuillez remplir tous les champs obligatoires !';
+                return;
+            }
+            
+            // Mettre à jour les compteurs
+            if (data.reponse === 'oui') guestCounts.oui++;
+            else if (data.reponse === 'peutEtre') guestCounts.peutEtre++;
+            else if (data.reponse === 'non') guestCounts.non++;
+            
+            // Ajouter aux données covoiturage si conducteur
+            if (data.covoit === 'conducteur') {
+                covoitData.push({
+                    nom: data.prenom,
+                    depart: '[À préciser]',
+                    places: '[À préciser]',
+                    heure: '[À préciser]',
+                    jour: '[À préciser]'
+                });
+            }
+            
+            // Stocker les données
+            rsvpData.push(data);
+            
+            // Message de confirmation
+            let message = '';
+            if (data.reponse === 'oui') message = 'Super ! Ta participation est confirmée.';
+            else if (data.reponse === 'peutEtre') message = 'On te tient au courant !';
+            else message = 'Dommage, on se rattrapera !';
+            
+            document.getElementById('rsvpMessage').textContent = 'Merci ' + data.prenom + ' ! ' + message;
+            form.reset();
+            
+            // Mettre à jour les affichages
+            updateGuestCounts();
+            updateCovoitList();
+            
+            // Réinitialiser le message après 5 secondes
+            setTimeout(() => {
+                document.getElementById('rsvpMessage').textContent = '';
+            }, 5000);
+        }
+
+        // ===== COVOITURAGE =====
+=======
+        // Note: Guest counts are now managed via the secure RSVP form
+        // The counter below displays static info or can be updated manually
+        function updateCounters() {
+            updateCovoitList();
+        }
+=======
         // ===== COMPTEUR D'INVITÉS =====
+        // Fetch RSVP counts from the API
+        async function fetchRSVPCounts() {
+            try {
+                const response = await fetch('/api/rsvp-counts');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.counts) {
+                        document.getElementById('ouiCount').textContent = data.counts.oui;
+                        document.getElementById('peutEtreCount').textContent = data.counts.peutEtre;
+                        document.getElementById('nonCount').textContent = data.counts.non;
+                        document.getElementById('lastUpdate').textContent = formatDate(data.lastUpdated);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching RSVP counts:', error);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateCounters() {
+            updateCovoitList();
+            fetchRSVPCounts();
+        }=====
+        // Note: Guest counts are now managed via the secure RSVP form
+        // The counter below displays static info or can be updated manually
+        function updateCounters() {
+            updateCovoitList();
+        }
+
+        // ===== COVOITURAGE ==========
         function updateCounters() {
             updateGuestCounts();
             updateCovoitList();
