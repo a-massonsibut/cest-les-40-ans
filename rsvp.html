@@ -406,6 +406,11 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="msn">MSN Messenger</label>
+                            <input type="text" id="msn" name="msn" placeholder="Ton identifiant MSN Messenger">
+                        </div>
+
+                        <div class="form-group">
                             <label for="reponse">Ta réponse *</label>
                             <select id="reponse" name="reponse" required>
                                 <option value="" disabled selected>Sélectionne une option</option>
@@ -416,32 +421,47 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="covoit">Covoiturage</label>
-                            <select id="covoit" name="covoit">
-                                <option value="" disabled selected>Covoiturage</option>
-                                <option value="conducteur">🚗 Je peux conduire (précise le nombre de places ci-dessous)</option>
-                                <option value="passager">🚐 Je cherche un covoiturage</option>
-                                <option value="non">❌ Pas besoin</option>
+                            <label for="accompagne">Est-ce que tu viens seul.e ou accompagné.e ?</label>
+                            <select id="accompagne" name="accompagne">
+                                <option value="" disabled selected>Sélectionne une option</option>
+                                <option value="seul">👤 Seul.e</option>
+                                <option value="avecPlusUn">👫 Avec un +1</option>
+                                <option value="jeNeSaisPas">🤷 Je ne sais pas encore</option>
                             </select>
                         </div>
 
-                        <div class="form-group" id="placesGroup" style="display: none;">
-                            <label for="places">Nombre de places disponibles (si conducteur)</label>
-                            <input type="number" id="places" name="places" placeholder="Nombre de places" min="1" max="10">
+                        <div class="form-group">
+                            <label for="arrivee">Quand est-ce que tu arrives ?</label>
+                            <select id="arrivee" name="arrivee">
+                                <option value="" disabled selected>Sélectionne une option</option>
+                                <option value="vendrediSoir">Vendredi soir</option>
+                                <option value="samediMatin">Samedi matin</option>
+                                <option value="samediApresMidi">Samedi après-midi</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="depart">Ville de départ (pour covoiturage)</label>
-                            <input type="text" id="depart" name="depart" placeholder="Ex: Paris, Lyon, Grenoble...">
+                            <label for="allergiesAlimentaires">Est-ce que tu as des allergies alimentaires ?</label>
+                            <textarea id="allergiesAlimentaires" name="allergiesAlimentaires" placeholder="Décris tes allergies alimentaires si tu en as..."></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="allergies">Allergies / Régimes alimentaires</label>
-                            <textarea id="allergies" name="allergies" placeholder="Si tu as des allergies ou des préférences alimentaires..."></textarea>
+                            <label for="transport">Comment est-ce que tu comptes venir ?</label>
+                            <select id="transport" name="transport">
+                                <option value="" disabled selected>Sélectionne une option</option>
+                                <option value="voiture">🚗 Voiture</option>
+                                <option value="trainVoiture">🚆 Train + voiture</option>
+                                <option value="skiRando">⛷️ Ski de rando</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="message">Message / Questions</label>
+                            <label for="questions">Des questions ?</label>
+                            <textarea id="questions" name="questions" placeholder="Tes questions pour l'organisateur..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
                             <textarea id="message" name="message" placeholder="Un message pour l'organisateur ?"></textarea>
                         </div>
 
@@ -487,18 +507,6 @@
     </div>
 
     <script>
-        // Show/hide places field based on covoit selection
-        const covoitSelect = document.getElementById('covoit');
-        const placesGroup = document.getElementById('placesGroup');
-        
-        covoitSelect.addEventListener('change', function() {
-            if (this.value === 'conducteur') {
-                placesGroup.style.display = 'block';
-            } else {
-                placesGroup.style.display = 'none';
-            }
-        });
-
         // Form submission handling
         const form = document.getElementById('rsvpForm');
         const submitBtn = document.getElementById('submitBtn');
