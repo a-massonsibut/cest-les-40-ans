@@ -421,12 +421,32 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="accompagne">Est-ce que tu viens seul.e ou accompagné.e ?</label>
-                            <select id="accompagne" name="accompagne">
+                            <label for="avecQuelquun">Est-ce que tu viens avec quelqu'un ?</label>
+                            <select id="avecQuelquun" name="avecQuelquun">
                                 <option value="" disabled selected>Sélectionne une option</option>
-                                <option value="seul">👤 Seul.e</option>
-                                <option value="avecPlusUn">👫 Avec un +1</option>
-                                <option value="jeNeSaisPas">🤷 Je ne sais pas encore</option>
+                                <option value="oui">✅ Oui, je viens avec quelqu'un</option>
+                                <option value="non">❌ Non, je viens seul(e)</option>
+                                <option value="peutEtre">🤔 Peut-être</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="arrivee">Quand est-ce que tu penses arriver ?</label>
+                            <select id="arrivee" name="arrivee">
+                                <option value="" disabled selected>Sélectionne une option</option>
+                                <option value="vendrediSoir">🌙 Vendredi soir</option>
+                                <option value="samediMatin">🌅 Samedi matin</option>
+                                <option value="samediApresMidi">🌇 Samedi après-midi</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="covoit">Covoiturage</label>
+                            <select id="covoit" name="covoit">
+                                <option value="" disabled selected>Covoiturage</option>
+                                <option value="conducteur">🚗 Je peux conduire (précise le nombre de places ci-dessous)</option>
+                                <option value="passager">🚐 Je cherche un covoiturage</option>
+                                <option value="non">❌ Pas besoin</option>
                             </select>
                         </div>
 
