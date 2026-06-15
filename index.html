@@ -278,6 +278,54 @@
             background-color: #FF69B4;
         }
 
+        /* ===== RSVP BUTTON STYLE ===== */
+        .rsvp-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF1493, #FF69B4, #FF1493);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 12px 25px;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rsvp-button:hover {
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #FF69B4);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .rsvp-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 5px rgba(255, 20, 147, 0.5);
+        }
+
+        .rsvp-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .rsvp-button:hover::before {
+            left: 100%;
+        }
+
         /* ===== COUNTER STYLE ===== */
         .counter-display {
             font-family: "Arial Black", sans-serif;
@@ -459,10 +507,7 @@
                             </div>
                         </div>
                         <div class="counter-label">
-                            <em style="font-size: 10px; color: #999999;">
-                                Pour des raisons de confidentialité,<br>
-                                les compteurs sont mis à jour manuellement
-                            </em>
+                            Dernière mise à jour : <span id="lastUpdate">chargement...</span>
                         </div>
                     </div>
 
@@ -729,16 +774,18 @@
                             </p>
                             <p>
                                 <strong>🔒 TES RÉPONSES SONT SÉCURISÉES !</strong><br>
-                                <em style="font-size: 10px; color: #999999;">(Formulaire séparé - données non visibles publiquement)</em>
+                                <em style="font-size: 10px; color: #999999;">Formulaire séparé - données privées</em>
                             </p>
-                            <p style="text-align: center; margin: 15px 0;">
-                                <a href="rsvp.html" style="background-color: #FF1493; color: #FFFFFF; padding: 10px 20px; text-decoration: none; font-family: 'Arial Black', sans-serif; font-size: 12px; display: inline-block; border: none; cursor: pointer; font-weight: bold; letter-spacing: 1px;">
+                            
+                            <!-- Bouton RSVP amélioré -->
+                            <div style="text-align: center; margin: 15px 0;">
+                                <div class="gif-container" style="margin-bottom: 10px;">
+                                    <img src="https://media.giphy.com/media/l0HU7JyXcB2v48jQY/giphy.gif" alt="RSVP" width="120">
+                                </div>
+                                <a href="rsvp.html" class="rsvp-button">
                                     ✉️ RÉPONDRE À L'INVITATION
                                 </a>
-                            </p>
-                            <p style="text-align: center; font-size: 10px; color: #999999; margin-top: 10px;">
-                                Clique ci-dessus pour accéder au formulaire sécurisé
-                            </p>
+                            </div>
                         </div>
                     </div>
 
@@ -953,7 +1000,46 @@
 
         // ===== COVOITURAGE =====
 =======
+        // Note: Guest counts are now managed via the secure RSVP form
+        // The counter below displays static info or can be updated manually
+        function updateCounters() {
+            updateCovoitList();
+        }
+=======
         // ===== COMPTEUR D'INVITÉS =====
+        // Fetch RSVP counts from the API
+        async function fetchRSVPCounts() {
+            try {
+                const response = await fetch('/api/rsvp-counts');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.counts) {
+                        document.getElementById('ouiCount').textContent = data.counts.oui;
+                        document.getElementById('peutEtreCount').textContent = data.counts.peutEtre;
+                        document.getElementById('nonCount').textContent = data.counts.non;
+                        document.getElementById('lastUpdate').textContent = formatDate(data.lastUpdated);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching RSVP counts:', error);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateCounters() {
+            updateCovoitList();
+            fetchRSVPCounts();
+        }=====
         // Note: Guest counts are now managed via the secure RSVP form
         // The counter below displays static info or can be updated manually
         function updateCounters() {
