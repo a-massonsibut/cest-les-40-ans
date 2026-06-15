@@ -719,6 +719,42 @@
                                     <td>Bracelets fluo, colliers en plastique</td>
                                 </tr>
                             </table>
+                            
+                            <h3 style="color: #FF1493; font-family: 'Arial Black', sans-serif; margin: 15px 0 10px;">🎵 PLAYLIST :</h3>
+                            <p>
+                                Écoute la playlist officielle de la soirée directement ici :
+                            </p>
+                            
+                            <!-- Lecteur Spotify embarqué -->
+                            <div style="text-align: center; margin: 15px 0;">
+                                <iframe src="https://open.spotify.com/embed/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                        width="100%" 
+                                        height="380" 
+                                        frameborder="0" 
+                                        allowtransparency="true" 
+                                        allow="encrypted-media">
+                                </iframe>
+                            </div>
+                            
+                            <p style="text-align: center; margin: 10px 0;">
+                                <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                   style="color: #1DB954; font-weight: bold; text-decoration: none;"
+                                   target="_blank">
+                                    🎧 Écouter sur Spotify →
+                                </a>
+                            </p>
+                            
+                            <p style="text-align: center; margin-top: 15px;">
+                                <strong>💿 Tu veux ajouter un titre ?</strong><br>
+                                <em style="color: #CCCCCC;">
+                                    Connecte-toi à Spotify pour contribuer à la playlist avec tes titres préférés des années 90 !
+                                    <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
+                                       style="color: #1DB954; text-decoration: none;"
+                                       target="_blank">
+                                        →
+                                    </a>
+                                </em>
+                            </p>
                         </div>
                     </div>
                 </td>
@@ -806,41 +842,16 @@
 
                     <!-- MUSIQUE -->
                     <div class="box">
-                        <h3>🎵 PLAYLIST SPOTIFY</h3>
-                        <p style="text-align: center; margin-bottom: 10px;">
-                            Écoute la playlist officielle de la soirée directement ici :
-                        </p>
-                        
-                        <!-- Lecteur Spotify embarqué -->
-                        <div style="text-align: center; margin: 10px 0;">
-                            <iframe src="https://open.spotify.com/embed/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                                    width="100%" 
-                                    height="152" 
-                                    frameborder="0" 
-                                    allowtransparency="true" 
-                                    allow="encrypted-media">
-                            </iframe>
-                        </div>
-                        
-                        <p style="text-align: center; margin: 10px 0;">
-                            <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                               style="color: #1DB954; font-weight: bold; text-decoration: none;"
-                               target="_blank">
-                                🎧 Écouter sur Spotify →
-                            </a>
-                        </p>
-                        
-                        <p style="text-align: center; margin-top: 10px;">
-                            <strong>💿 Tu veux ajouter un titre ?</strong><br>
-                            <em style="color: #CCCCCC;">
-                                Connecte-toi à Spotify pour contribuer à la playlist avec tes titres préférés des années 90 !
-                                <a href="https://open.spotify.com/playlist/6U58j1AiS6DTNhleo3qxsj?si=DCb_Gy7PTa2DQM8QEufQRQ&pt=57f471e905f6d02051de82db8acde323&pi=PnOYPUHiTbWd-" 
-                                   style="color: #1DB954; text-decoration: none;"
-                                   target="_blank">
-                                    →
-                                </a>
-                            </em>
-                        </p>
+                        <h3>🎵 LECTEUR MUSICAL</h3>
+                        <select id="musicSelect" onchange="changeMusic();">
+                            <option value="">-- Sélectionne une musique --</option>
+                            <option value="backstreet">Backstreet Boys - I Want It That Way</option>
+                            <option value="britney">Britney Spears - Baby One More Time</option>
+                            <option value="spice">Spice Girls - Wannabe</option>
+                        </select>
+                        <button onclick="playMusic();">▶️ Play</button>
+                        <button onclick="stopMusic();">⏹️ Stop</button>
+                        <p id="nowPlaying" style="margin-top: 5px; font-size: 10px; color: #999999;"></p>
                     </div>
 
                     <!-- PUBLICITE -->
