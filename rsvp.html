@@ -171,26 +171,41 @@
         }
 
         button {
-            background-color: #FF1493;
+            background: linear-gradient(135deg, #FF1493, #FF69B4, #FF1493);
             color: #FFFFFF;
-            border: none;
-            padding: 10px 20px;
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            padding: 12px 25px;
             cursor: pointer;
-            font-family: "Arial Black", sans-serif;
-            font-size: 12px;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 13px;
             width: 100%;
             margin-top: 10px;
             font-weight: bold;
+            text-transform: uppercase;
             letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background-color: #FF69B4;
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #FF69B4);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 5px rgba(255, 20, 147, 0.5);
         }
 
         button:disabled {
-            background-color: #666666;
+            background: #666666;
+            border-color: #999999;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
         /* ===== PRIVACY NOTICE ===== */
