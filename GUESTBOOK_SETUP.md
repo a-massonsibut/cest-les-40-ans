@@ -78,19 +78,13 @@ function json(payload) {
 
 ## Étape 3 — Brancher l'URL dans le site
 
-Dans `index.html`, remplacer :
+L'URL du Web App est déjà branchée dans `index.html` :
 
 ```javascript
-const GUESTBOOK_WRITE_URL = '';
+const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbxhGA7P7-QTLsM2d1W6V_1uiPvOKD5yI1ws7LRZxgo2EpCMpgg0KJzeg7K4_u6dBjqc/exec';
 ```
 
-par :
-
-```javascript
-const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/TON_ID_DE_DEPLOIEMENT/exec';
-```
-
-Ensuite commit/push et redéployer le site.
+Si tu redéploies un nouveau Web App plus tard, remplace simplement cette valeur par la nouvelle URL `/exec`, puis commit/push et redéploie le site.
 
 ## Vérification
 
