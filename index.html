@@ -73,6 +73,22 @@
             margin: 5px 0;
         }
 
+        .guestbook-marquee {
+            background-color: #000000;
+            color: #FFFF00;
+            padding: 5px;
+            font-weight: bold;
+            font-family: "Arial Black", sans-serif;
+            border-top: 2px solid #FFD700;
+            border-bottom: 2px solid #FFD700;
+            overflow: hidden;
+        }
+
+        .guestbook-marquee .scrolling-text {
+            display: inline-block;
+            min-width: 100%;
+        }
+
         /* ===== NAVIGATION ===== */
         .nav {
             background-color: #191970;
@@ -473,6 +489,10 @@
             </div>
         </div>
 
+        <div class="guestbook-marquee">
+            <span class="scrolling-text" id="guestbookMarqueeText">💌 Chargement des messages du livre d'or...</span>
+        </div>
+
         <!-- NAVIGATION -->
         <div class="nav">
             <a href="#accueil">🏠 ACCUEIL</a>
@@ -812,7 +832,7 @@
                         <h3>📖 LIVRE D'OR</h3>
                         <div class="box-content">
                             <div class="gif-container">
-                                <img src="https://media.giphy.com/media/3o6Zt6d1Z1L1xYZ1lK/giphy.gif" alt="Livre d'Or GIF" width="180">
+                                <img src="https://media.giphy.com/media/UX0qGWmX23geQ/giphy.gif" alt="Livre d'Or GIF" width="180">
                             </div>
                             <p>
                                 <strong>💬 LAISSE-MOI UN PETIT MOT !</strong>
@@ -1135,6 +1155,7 @@
             const container = document.getElementById('messagesContainer');
             const loadMoreLink = document.getElementById('loadMoreMessagesLink');
             container.innerHTML = '';
+            updateGuestbookMarquee();
 
             messages.slice(0, visibleMessagesCount).forEach(msg => {
                 const div = document.createElement('div');
@@ -1154,6 +1175,17 @@
             }
 
             loadMoreLink.style.display = messages.length > visibleMessagesCount ? 'inline' : 'none';
+        }
+
+        function updateGuestbookMarquee() {
+            const marquee = document.getElementById('guestbookMarqueeText');
+            const marqueeMessages = messages
+                .filter(msg => msg.pseudo && msg.text)
+                .map(msg => msg.pseudo + ' : ' + msg.text);
+
+            marquee.textContent = marqueeMessages.length
+                ? marqueeMessages.join(' 💌 ')
+                : 'Aucun message dans le livre d\'or pour le moment 💌 Sois le premier à écrire !';
         }
 
         function loadMoreMessages() {
