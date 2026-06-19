@@ -76,14 +76,41 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             border: 2px solid #FFD700;
             border-radius: 5px;
+            cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
             margin-top: 15px;
         }
 
         .rsvp-button:hover {
             background: linear-gradient(135deg, #FF69B4, #FF1493, #FF69B4);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .rsvp-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 5px rgba(255, 20, 147, 0.5);
+        }
+
+        .rsvp-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .rsvp-button:hover::before {
+            left: 100%;
         }
 
         .footer {
