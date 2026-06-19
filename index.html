@@ -461,7 +461,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Digital+7&display=swap" rel="stylesheet">
 </head>
-<body onload="startClock(); updateCounters();">
+<body>
     <!-- HEADER -->
     <div class="container">
         <div class="header">
@@ -818,22 +818,22 @@
                                 <strong>💬 LAISSE-MOI UN PETIT MOT !</strong>
                             </p>
                             
-                            <form onsubmit="addMessage(); return false;">
-                                <input type="text" id="pseudoMessage" placeholder="Pseudo *" required>
-                                <textarea id="messageText" placeholder="Ton message..." required></textarea>
-                                <button type="submit">SIGNER LE LIVRE D'OR</button>
+                            <form id="guestbookForm" onsubmit="addMessage(event); return false;">
+                                <input type="text" id="pseudoMessage" placeholder="Pseudo *" maxlength="40" required>
+                                <textarea id="messageText" placeholder="Ton message..." maxlength="500" required></textarea>
+                                <input type="text" id="guestbookWebsite" tabindex="-1" autocomplete="off" style="display: none;" aria-hidden="true">
+                                <button type="submit" id="guestbookSubmitButton">SIGNER LE LIVRE D'OR</button>
                             </form>
+                            <p id="guestbookStatus" style="min-height: 16px; color: #FFD700; font-size: 10px; text-align: center;"></p>
                             
                             <div style="max-height: 200px; overflow-y: auto; background-color: #000000; border: 1px solid #4B0082; padding: 5px; margin-top: 10px;">
-                                <div class="message">
-                                    <strong>Agnès</strong> - 14/06/2026<br>
-                                    Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖
+                                <div id="messagesContainer">
+                                    <div class="message">Chargement du livre d'or...</div>
                                 </div>
-                                <div id="messagesContainer"></div>
                             </div>
                             
                             <p style="margin-top: 10px; text-align: center;">
-                                <a href="#" onclick="loadMoreMessages(); return false;" style="color: #00BFFF;">Voir plus de messages</a>
+                                <a href="#" id="loadMoreMessagesLink" onclick="loadMoreMessages(); return false;" style="color: #00BFFF;">Voir plus de messages</a>
                             </p>
                         </div>
                     </div>
@@ -892,29 +892,18 @@
         </div>
     </div>
 
-        let rsvpData = [];
-        let messages = [
-            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
-        ];
-        let covoitData = [
-            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
-        ];
-        let guestCounts = { oui: 0, peutEtre: 0, non: 0 };
-=======
     <script>
-        // ===== DONNÉES STOCKÉES (simulation base de données) =====
-        let messages = [
+        const GUESTBOOK_SHEET_ID = '17N5YJxQmmbHv7IKyeqHqmH7AOJoHJe9kS146kJBsZRw';
+        const GUESTBOOK_SHEET_NAME = 'Feuille 1';
+        const GUESTBOOK_READ_BASE_URL = 'https://docs.google.com/spreadsheets/d/' + GUESTBOOK_SHEET_ID + '/gviz/tq?headers=1&sheet=' + encodeURIComponent(GUESTBOOK_SHEET_NAME);
+        // Remplacer cette valeur par l'URL /exec du Web App Google Apps Script pour activer l'écriture.
+        const GUESTBOOK_WRITE_URL = '';
+
+        const defaultMessages = [
             {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
         ];
-        let covoitData = [
-            {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
-        ];
-        // RSVP data is now handled securely via the separate RSVP page
-        // No client-side storage of guest responses for privacy=====
-        let rsvpData = [];
-        let messages = [
-            {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
-        ];
+        let messages = defaultMessages.slice();
+        let visibleMessagesCount = 5;
         let covoitData = [
             {nom: 'Agnès', depart: 'Paris', places: 3, heure: '14h00', jour: 'vendredi'}
         ];
@@ -928,7 +917,7 @@
                 const minutes = now.getMinutes().toString().padStart(2, '0');
                 const seconds = now.getSeconds().toString().padStart(2, '0');
                 document.getElementById('digitalClock').textContent = hours + ':' + minutes + ':' + seconds;
-                
+
                 const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                 const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
                 const dateStr = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
@@ -941,203 +930,51 @@
 
         // ===== COMPTEUR DE VISITEURS =====
         function updateVisitorCounter() {
-            const currentCount = parseInt(document.getElementById('visitorCounter').textContent.replace(/\D/g, ''));
+            const currentCount = parseInt(document.getElementById('visitorCounter').textContent.replace(/\D/g, ''), 10);
             const newCount = currentCount + Math.floor(Math.random() * 3);
             document.getElementById('visitorCounter').textContent = newCount.toString().padStart(6, '0');
         }
-        
-        setInterval(updateVisitorCounter, 15000);
 
         function updateCounters() {
             updateGuestCounts();
             updateCovoitList();
         }
 
-        function updateGuestCounts() {
-            document.getElementById('ouiCount').textContent = guestCounts.oui;
-            document.getElementById('peutEtreCount').textContent = guestCounts.peutEtre;
-            document.getElementById('nonCount').textContent = guestCounts.non;
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
-        }
-
-        // ===== RSVP =====
-        function submitRSVP() {
-            const form = event.target;
-            const data = {
-                prenom: form.prenom.value,
-                nom: form.nom.value,
-                email: form.email.value,
-                telephone: form.telephone.value,
-                reponse: form.reponse.value,
-                covoit: form.covoit.value,
-                message: form.message.value
-            };
-            
-            if (!data.prenom || !data.nom || !data.email || !data.reponse) {
-                document.getElementById('rsvpMessage').textContent = 'Veuillez remplir tous les champs obligatoires !';
-                return;
-            }
-            
-            // Mettre à jour les compteurs
-            if (data.reponse === 'oui') guestCounts.oui++;
-            else if (data.reponse === 'peutEtre') guestCounts.peutEtre++;
-            else if (data.reponse === 'non') guestCounts.non++;
-            
-            // Ajouter aux données covoiturage si conducteur
-            if (data.covoit === 'conducteur') {
-                covoitData.push({
-                    nom: data.prenom,
-                    depart: '[À préciser]',
-                    places: '[À préciser]',
-                    heure: '[À préciser]',
-                    jour: '[À préciser]'
-                });
-            }
-            
-            // Stocker les données
-            rsvpData.push(data);
-            
-            // Message de confirmation
-            let message = '';
-            if (data.reponse === 'oui') message = 'Super ! Ta participation est confirmée.';
-            else if (data.reponse === 'peutEtre') message = 'On te tient au courant !';
-            else message = 'Dommage, on se rattrapera !';
-            
-            document.getElementById('rsvpMessage').textContent = 'Merci ' + data.prenom + ' ! ' + message;
-            form.reset();
-            
-            // Mettre à jour les affichages
-            updateGuestCounts();
-            updateCovoitList();
-            
-            // Réinitialiser le message après 5 secondes
-            setTimeout(() => {
-                document.getElementById('rsvpMessage').textContent = '';
-            }, 5000);
-        }
-
-        // ===== COVOITURAGE =====
-=======
-        // Note: Guest counts are now managed via the secure RSVP form
-        // The counter below displays static info or can be updated manually
-        function updateCounters() {
-            updateCovoitList();
-        }
-=======
-        // ===== COMPTEUR D'INVITÉS =====
-        // Fetch RSVP counts from the API
-        async function fetchRSVPCounts() {
+        async function updateGuestCounts() {
             try {
-                const response = await fetch('/api/rsvp-counts');
+                const response = await fetch('data/rsvp-counts.json?cacheBust=' + Date.now());
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.success && data.counts) {
-                        document.getElementById('ouiCount').textContent = data.counts.oui;
-                        document.getElementById('peutEtreCount').textContent = data.counts.peutEtre;
-                        document.getElementById('nonCount').textContent = data.counts.non;
-                        document.getElementById('lastUpdate').textContent = formatDate(data.lastUpdated);
-                    }
+                    guestCounts = data.counts || guestCounts;
+                    document.getElementById('lastUpdate').textContent = formatDate(data.lastUpdated);
+                } else {
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
                 }
             } catch (error) {
-                console.error('Error fetching RSVP counts:', error);
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
             }
+
+            document.getElementById('ouiCount').textContent = guestCounts.oui || 0;
+            document.getElementById('peutEtreCount').textContent = guestCounts.peutEtre || 0;
+            document.getElementById('nonCount').textContent = guestCounts.non || 0;
         }
 
         function formatDate(dateString) {
+            if (!dateString) return '';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
             return date.toLocaleDateString('fr-FR', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
             });
-        }
-
-        function updateCounters() {
-            updateCovoitList();
-            fetchRSVPCounts();
-        }=====
-        // Note: Guest counts are now managed via the secure RSVP form
-        // The counter below displays static info or can be updated manually
-        function updateCounters() {
-            updateCovoitList();
-        }
-
-        // ===== COVOITURAGE ==========
-        function updateCounters() {
-            updateGuestCounts();
-            updateCovoitList();
-        }
-
-        function updateGuestCounts() {
-            document.getElementById('ouiCount').textContent = guestCounts.oui;
-            document.getElementById('peutEtreCount').textContent = guestCounts.peutEtre;
-            document.getElementById('nonCount').textContent = guestCounts.non;
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('fr-FR');
-        }
-
-        // ===== RSVP =====
-        function submitRSVP() {
-            const form = event.target;
-            const data = {
-                prenom: form.prenom.value,
-                nom: form.nom.value,
-                email: form.email.value,
-                telephone: form.telephone.value,
-                reponse: form.reponse.value,
-                covoit: form.covoit.value,
-                message: form.message.value
-            };
-            
-            if (!data.prenom || !data.nom || !data.email || !data.reponse) {
-                document.getElementById('rsvpMessage').textContent = 'Veuillez remplir tous les champs obligatoires !';
-                return;
-            }
-            
-            // Mettre à jour les compteurs
-            if (data.reponse === 'oui') guestCounts.oui++;
-            else if (data.reponse === 'peutEtre') guestCounts.peutEtre++;
-            else if (data.reponse === 'non') guestCounts.non++;
-            
-            // Ajouter aux données covoiturage si conducteur
-            if (data.covoit === 'conducteur') {
-                covoitData.push({
-                    nom: data.prenom,
-                    depart: '[À préciser]',
-                    places: '[À préciser]',
-                    heure: '[À préciser]',
-                    jour: '[À préciser]'
-                });
-            }
-            
-            // Stocker les données
-            rsvpData.push(data);
-            
-            // Message de confirmation
-            let message = '';
-            if (data.reponse === 'oui') message = 'Super ! Ta participation est confirmée.';
-            else if (data.reponse === 'peutEtre') message = 'On te tient au courant !';
-            else message = 'Dommage, on se rattrapera !';
-            
-            document.getElementById('rsvpMessage').textContent = 'Merci ' + data.prenom + ' ! ' + message;
-            form.reset();
-            
-            // Mettre à jour les affichages
-            updateGuestCounts();
-            updateCovoitList();
-            
-            // Réinitialiser le message après 5 secondes
-            setTimeout(() => {
-                document.getElementById('rsvpMessage').textContent = '';
-            }, 5000);
         }
 
         // ===== COVOITURAGE =====
         function updateCovoitList() {
             const container = document.getElementById('covoitList');
             container.innerHTML = '';
-            
+
             covoitData.forEach(covoit => {
                 const div = document.createElement('div');
                 div.className = 'covoit-item';
@@ -1149,62 +986,183 @@
                 `;
                 container.appendChild(div);
             });
-            
-            // Ajouter un message si pas de covoiturage
+
             if (covoitData.length === 0) {
                 container.innerHTML = '<em style="color: #999999;">Aucun covoiturage proposé pour l\'instant.</em>';
             }
         }
 
         // ===== LIVRE D'OR =====
-        function addMessage() {
-            const pseudo = document.getElementById('pseudoMessage').value;
-            const message = document.getElementById('messageText').value;
-            
+        async function addMessage(event) {
+            if (event) event.preventDefault();
+
+            const pseudoInput = document.getElementById('pseudoMessage');
+            const messageInput = document.getElementById('messageText');
+            const honeypot = document.getElementById('guestbookWebsite').value;
+            const submitButton = document.getElementById('guestbookSubmitButton');
+            const pseudo = pseudoInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (honeypot) return;
             if (!pseudo || !message) {
-                alert('Veuillez remplir tous les champs !');
+                setGuestbookStatus('Veuillez remplir tous les champs !');
                 return;
             }
-            
-            const now = new Date();
-            const dateStr = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
-            
-            messages.unshift({ pseudo, text: message, date: dateStr });
-            
-            // Afficher les 5 derniers messages
-            displayMessages();
-            
-            // Réinitialiser le formulaire
-            document.getElementById('pseudoMessage').value = '';
-            document.getElementById('messageText').value = '';
-            
-            alert('Merci pour ton message ! 💖');
+            if (!GUESTBOOK_WRITE_URL) {
+                setGuestbookStatus('Écriture non configurée : ajoutez l\'URL du Web App Google Apps Script dans index.html.');
+                return;
+            }
+
+            const dateStr = new Date().toLocaleDateString('fr-FR');
+            submitButton.disabled = true;
+            setGuestbookStatus('Envoi du message en cours...');
+
+            try {
+                const body = new URLSearchParams({
+                    name: pseudo,
+                    date: dateStr,
+                    message: message
+                });
+
+                await fetch(GUESTBOOK_WRITE_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: body
+                });
+
+                const saved = await waitForMessageInSheet(pseudo, message);
+                if (!saved) {
+                    throw new Error('Message non retrouvé dans la feuille Google Sheets.');
+                }
+
+                pseudoInput.value = '';
+                messageInput.value = '';
+                setGuestbookStatus('Merci pour ton message ! 💖');
+            } catch (error) {
+                setGuestbookStatus('Impossible de confirmer l\'ajout du message. Réessaie dans quelques secondes.');
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        async function waitForMessageInSheet(pseudo, message) {
+            for (let attempt = 0; attempt < 6; attempt++) {
+                await sleep(1200);
+                await loadGuestbookMessages(false);
+                if (messages.some(msg => msg.pseudo === pseudo && msg.text === message)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function loadGuestbookMessages(showLoading) {
+            if (showLoading !== false) {
+                setGuestbookStatus('Chargement des messages...');
+            }
+
+            try {
+                const data = await loadGoogleSheetData();
+                const sheetMessages = (data.table.rows || [])
+                    .map(rowToMessage)
+                    .filter(msg => msg.pseudo && msg.text)
+                    .reverse();
+
+                messages = sheetMessages.length ? sheetMessages : defaultMessages.slice();
+                displayMessages();
+                if (showLoading !== false) {
+                    setGuestbookStatus('');
+                }
+            } catch (error) {
+                messages = defaultMessages.slice();
+                displayMessages();
+                if (showLoading !== false) {
+                    setGuestbookStatus('Les messages Google Sheets ne sont pas disponibles pour le moment.');
+                }
+            }
+        }
+
+        function loadGoogleSheetData() {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'guestbookSheetCallback' + Date.now();
+                const script = document.createElement('script');
+                const cleanup = () => {
+                    delete window[callbackName];
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                };
+
+                window[callbackName] = data => {
+                    cleanup();
+                    resolve(data);
+                };
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('Lecture Google Sheets impossible'));
+                };
+                script.src = GUESTBOOK_READ_BASE_URL + '&tqx=out:json;responseHandler:' + callbackName + '&cacheBust=' + Date.now();
+                document.body.appendChild(script);
+            });
+        }
+
+        function rowToMessage(row) {
+            const cells = row.c || [];
+            return {
+                pseudo: getCellValue(cells[0]),
+                date: formatSheetDate(getCellValue(cells[1])),
+                text: getCellValue(cells[2])
+            };
+        }
+
+        function getCellValue(cell) {
+            if (!cell || cell.v === null || cell.v === undefined) return '';
+            return String(cell.f || cell.v).trim();
+        }
+
+        function formatSheetDate(value) {
+            const dateMatch = /^Date\((\d+),(\d+),(\d+)/.exec(value);
+            if (dateMatch) {
+                const date = new Date(parseInt(dateMatch[1], 10), parseInt(dateMatch[2], 10), parseInt(dateMatch[3], 10));
+                return date.toLocaleDateString('fr-FR');
+            }
+            return value;
         }
 
         function displayMessages() {
             const container = document.getElementById('messagesContainer');
+            const loadMoreLink = document.getElementById('loadMoreMessagesLink');
             container.innerHTML = '';
-            
-            // Afficher les 5 derniers messages
-            messages.slice(0, 5).forEach(msg => {
+
+            messages.slice(0, visibleMessagesCount).forEach(msg => {
                 const div = document.createElement('div');
+                const strong = document.createElement('strong');
+                const br = document.createElement('br');
                 div.className = 'message';
-                div.innerHTML = `<strong>${msg.pseudo}</strong> - ${msg.date}<br>${msg.text}`;
+                strong.textContent = msg.pseudo;
+                div.appendChild(strong);
+                div.appendChild(document.createTextNode(' - ' + msg.date));
+                div.appendChild(br);
+                div.appendChild(document.createTextNode(msg.text));
                 container.appendChild(div);
             });
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="message">Aucun message pour le moment.</div>';
+            }
+
+            loadMoreLink.style.display = messages.length > visibleMessagesCount ? 'inline' : 'none';
         }
 
         function loadMoreMessages() {
-            // Simuler le chargement de plus de messages
-            const oldMessages = [
-                {pseudo: 'Jean-Michel', text: 'Hâte d\'être là ! Je prépare déjà mon déguisement années 90 !', date: '13/06/2026'},
-                {pseudo: 'Marie', text: 'Super idée Agnès ! Je vais essayer de résoudre toutes les énigmes !', date: '12/06/2026'},
-                {pseudo: 'Pierre', text: 'Le spa perdu... ça me rappelle les jeux de piste quand on était ados !', date: '11/06/2026'},
-                {pseudo: 'Sophie', text: 'Je viens ! Et je ramène des bonbons années 90 !', date: '10/06/2026'}
-            ];
-            
-            messages = [...messages, ...oldMessages];
+            visibleMessagesCount += 5;
             displayMessages();
+        }
+
+        function setGuestbookStatus(message) {
+            document.getElementById('guestbookStatus').textContent = message;
         }
 
         // ===== MUSIQUE =====
@@ -1229,6 +1187,7 @@
         // ===== SMOOTH SCROLL =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('onclick')) return;
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
@@ -1243,7 +1202,8 @@
         // ===== INITIALISATION =====
         startClock();
         updateCounters();
-        displayMessages();
+        loadGuestbookMessages();
+        setInterval(updateVisitorCounter, 15000);
     </script>
 </body>
 </html>
