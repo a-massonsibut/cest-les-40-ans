@@ -4,6 +4,8 @@ Le site lit déjà les messages depuis cette feuille Google Sheets :
 
 https://docs.google.com/spreadsheets/d/17N5YJxQmmbHv7IKyeqHqmH7AOJoHJe9kS146kJBsZRw/edit?usp=sharing
 
+Onglet utilisé : GID `0`.
+
 Colonnes attendues :
 
 | A | B | C |
@@ -32,14 +34,15 @@ Dans Google Sheets :
 4. Copier l'URL de déploiement qui se termine par `/exec`
 
 ```javascript
-const SHEET_NAME = 'Feuille 1';
+const SPREADSHEET_ID = '17N5YJxQmmbHv7IKyeqHqmH7AOJoHJe9kS146kJBsZRw';
+const SHEET_GID = 0;
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
 
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const sheet = getSheetByGid(SHEET_GID);
     const params = e.parameter || {};
     const name = clean(params.name, 40);
     const date = clean(params.date, 20) || Utilities.formatDate(new Date(), 'Europe/Paris', 'dd/MM/yyyy');
@@ -62,6 +65,18 @@ function doGet() {
   return json({ success: true });
 }
 
+function getSheetByGid(gid) {
+  const sheets = SpreadsheetApp.openById(SPREADSHEET_ID).getSheets();
+
+  for (let i = 0; i < sheets.length; i++) {
+    if (sheets[i].getSheetId() === gid) {
+      return sheets[i];
+    }
+  }
+
+  throw new Error('Missing sheet gid: ' + gid);
+}
+
 function clean(value, maxLength) {
   return String(value || '')
     .replace(/[\u0000-\u001F\u007F]/g, '')
@@ -77,6 +92,8 @@ function json(payload) {
 ```
 
 ## Étape 3 — Brancher l'URL dans le site
+
+La lecture publique dans `index.html` utilise aussi ce GID `0`, pas le nom de l'onglet.
 
 L'URL du Web App est déjà branchée dans `index.html` :
 
