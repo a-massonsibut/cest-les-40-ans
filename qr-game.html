@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#191970">
+    <title>Scanner QR - L'Énigme du week-end</title>
+    <meta name="description" content="Web app mobile pour scanner les QR codes de l'énigme et suivre le classement.">
+    <link rel="manifest" href="qr-game.webmanifest">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #000000;
+            color: #ffffff;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 14px;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(255, 20, 147, 0.22), transparent 28%),
+                radial-gradient(circle at 80% 0%, rgba(0, 191, 255, 0.18), transparent 26%),
+                radial-gradient(circle at 50% 100%, rgba(255, 215, 0, 0.12), transparent 30%);
+        }
+
+        a {
+            color: #00bfff;
+        }
+
+        .page {
+            position: relative;
+            width: min(980px, 100%);
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        .header {
+            border: 3px solid #ff1493;
+            background: linear-gradient(90deg, #9400d3, #4b0082, #000080, #00bfff);
+            box-shadow: 0 0 20px #ff1493;
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: clamp(22px, 7vw, 38px);
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #ff1493;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        .top-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .button, button {
+            display: inline-block;
+            width: 100%;
+            min-height: 44px;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff1493, #ff69b4, #ff1493);
+            color: #ffffff;
+            cursor: pointer;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            padding: 11px 12px;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.55);
+        }
+
+        .button.secondary, button.secondary {
+            background: #191970;
+            border-color: #00bfff;
+            box-shadow: 0 0 8px rgba(0, 191, 255, 0.45);
+        }
+
+        .button:disabled, button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+            gap: 12px;
+        }
+
+        .panel {
+            border: 1px solid #4b0082;
+            background: rgba(25, 25, 112, 0.94);
+            padding: 12px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            border-bottom: 1px solid #ffffff;
+            color: #ffd700;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 15px;
+            letter-spacing: 1px;
+            padding-bottom: 6px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        label {
+            display: block;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #ff1493;
+            background: #000000;
+            color: #ffffff;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 16px;
+            margin-bottom: 8px;
+            padding: 10px;
+        }
+
+        .reader-wrap {
+            overflow: hidden;
+            border: 2px dashed #ff1493;
+            border-radius: 10px;
+            background: #000000;
+            margin-top: 10px;
+            min-height: 280px;
+        }
+
+        #reader {
+            width: 100%;
+        }
+
+        #reader video {
+            width: 100% !important;
+            border-radius: 8px;
+        }
+
+        .status {
+            min-height: 22px;
+            border: 1px solid #4b0082;
+            background: #000000;
+            color: #ffd700;
+            font-size: 13px;
+            margin: 10px 0;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .score-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .score-box {
+            background: #2a2a72;
+            border: 1px solid #4b0082;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .score-box strong {
+            display: block;
+            color: #00bfff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .score-box span {
+            color: #cccccc;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .list {
+            max-height: 320px;
+            overflow: auto;
+            border: 1px solid #4b0082;
+            background: #000000;
+        }
+
+        .list-item {
+            border-bottom: 1px dashed #4b0082;
+            padding: 8px;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item strong {
+            color: #ff1493;
+        }
+
+        .small {
+            color: #999999;
+            font-size: 11px;
+        }
+
+        .warning {
+            border: 1px solid #ffd700;
+            background: #3c2500;
+            color: #ffffff;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .footer {
+            margin: 12px 0 0;
+            border-top: 2px solid #ffd700;
+            background: linear-gradient(90deg, #9400d3, #4b0082, #000080, #00bfff);
+            font-size: 11px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                padding: 8px;
+            }
+
+            .grid, .top-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="header">
+            <h1>Scanner QR</h1>
+            <p>🔍 L'énigme du week-end — scanne un maximum de QR codes !</p>
+        </header>
+
+        <nav class="top-actions" aria-label="Navigation">
+            <a class="button secondary" href="index.html#enigme">⬅ Retour à l'énigme</a>
+            <button class="secondary" type="button" id="refreshButton">🔄 Rafraîchir le classement</button>
+        </nav>
+
+        <section class="warning hidden" id="configWarning">
+            <strong>Configuration requise :</strong> ajoute l'URL du Web App Google Apps Script dans la constante
+            <code>QR_GAME_API_URL</code> de cette page. Le guide est dans <a href="QR_GAME_SETUP.md">QR_GAME_SETUP.md</a>.
+        </section>
+
+        <div class="grid">
+            <section class="panel" aria-labelledby="scannerTitle">
+                <h2 id="scannerTitle">📱 Scanner</h2>
+
+                <form id="playerForm">
+                    <label for="playerName">Ton prénom / équipe</label>
+                    <input id="playerName" name="playerName" autocomplete="nickname" maxlength="40" placeholder="Ex : Équipe Buffy" required>
+                    <button type="submit" id="savePlayerButton">✅ Enregistrer le joueur</button>
+                </form>
+
+                <div class="status" id="statusMessage">Entre ton nom, puis lance le scanner.</div>
+
+                <div class="top-actions">
+                    <button type="button" id="startButton" disabled>📷 Lancer le scanner</button>
+                    <button type="button" id="stopButton" class="secondary" disabled>⏹ Stop</button>
+                </div>
+
+                <div class="reader-wrap">
+                    <div id="reader"></div>
+                </div>
+
+                <p class="small">
+                    Astuce : sur iPhone et Android, il faut ouvrir cette page en HTTPS et autoriser l'accès à la caméra.
+                    Si la caméra ne s'ouvre pas, essaye Safari sur iPhone ou Chrome sur Android.
+                </p>
+            </section>
+
+            <aside class="panel" aria-labelledby="scoreTitle">
+                <h2 id="scoreTitle">🏆 Score</h2>
+
+                <div class="score-card">
+                    <div class="score-box">
+                        <strong id="playerScore">0</strong>
+                        <span>points</span>
+                    </div>
+                    <div class="score-box">
+                        <strong id="playerScanCount">0</strong>
+                        <span>QR scannés</span>
+                    </div>
+                </div>
+
+                <h2>🧾 Mes trouvailles</h2>
+                <div class="list" id="playerScans">
+                    <div class="list-item small">Aucun QR code scanné pour le moment.</div>
+                </div>
+
+                <h2 style="margin-top: 14px;">🥇 Classement</h2>
+                <div class="list" id="leaderboard">
+                    <div class="list-item small">Classement en attente.</div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="footer">
+            © 2026 - Mon Skyblog Anniversaire | Web app sans store, juste avec un lien ✨
+        </footer>
+    </main>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        // Remplacer cette valeur par l'URL /exec du Web App Google Apps Script.
+        // Le guide QR_GAME_SETUP.md est préconfiguré pour le Google Spreadsheet de l'événement.
+        const QR_GAME_API_URL = 'https://script.google.com/macros/s/AKfycbzFMQh393jmzJ-fufaWHjbNFevZ6sXFh0J2gYUvvVfu5332CT8RZevW6-enDBo7f8vN/exec';
+
+        const STORAGE_PLAYER_KEY = 'qrGamePlayerName';
+        const SCANNER_REGION_ID = 'reader';
+        const SCAN_COOLDOWN_MS = 3000;
+        const CONFIRMATION_ATTEMPTS = 7;
+        const CONFIRMATION_DELAY_MS = 1200;
+
+        let playerName = '';
+        let html5QrCode = null;
+        let scannerRunning = false;
+        let scanInProgress = false;
+        let lastScannedCode = '';
+        let lastScanAt = 0;
+        let playerState = { total: 0, scans: [], leaderboard: [] };
+
+        const elements = {
+            configWarning: document.getElementById('configWarning'),
+            playerForm: document.getElementById('playerForm'),
+            playerName: document.getElementById('playerName'),
+            savePlayerButton: document.getElementById('savePlayerButton'),
+            statusMessage: document.getElementById('statusMessage'),
+            startButton: document.getElementById('startButton'),
+            stopButton: document.getElementById('stopButton'),
+            refreshButton: document.getElementById('refreshButton'),
+            playerScore: document.getElementById('playerScore'),
+            playerScanCount: document.getElementById('playerScanCount'),
+            playerScans: document.getElementById('playerScans'),
+            leaderboard: document.getElementById('leaderboard')
+        };
+
+        function isConfigured() {
+            return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(QR_GAME_API_URL);
+        }
+
+        function setStatus(message) {
+            elements.statusMessage.textContent = message;
+        }
+
+        function cleanValue(value, maxLength) {
+            return String(value || '')
+                .replace(/[\u0000-\u001F\u007F]/g, '')
+                .trim()
+                .slice(0, maxLength);
+        }
+
+        function loadSavedPlayer() {
+            playerName = cleanValue(localStorage.getItem(STORAGE_PLAYER_KEY), 40);
+            if (playerName) {
+                elements.playerName.value = playerName;
+                elements.startButton.disabled = !isConfigured();
+                setStatus('Joueur enregistré : ' + playerName + '. Tu peux lancer le scanner.');
+            }
+        }
+
+        elements.playerForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            playerName = cleanValue(elements.playerName.value, 40);
+            if (!playerName) {
+                setStatus('Entre ton prénom ou ton nom d\'équipe.');
+                return;
+            }
+            localStorage.setItem(STORAGE_PLAYER_KEY, playerName);
+            elements.startButton.disabled = !isConfigured();
+            setStatus('Joueur enregistré : ' + playerName + '. Chargement du score...');
+            await refreshState();
+        });
+
+        elements.startButton.addEventListener('click', startScanner);
+        elements.stopButton.addEventListener('click', stopScanner);
+        elements.refreshButton.addEventListener('click', refreshState);
+
+        async function startScanner() {
+            if (!isConfigured()) {
+                setStatus('Le jeu QR doit être configuré avant de scanner.');
+                return;
+            }
+            if (!playerName) {
+                setStatus('Enregistre ton prénom ou ton équipe avant de scanner.');
+                return;
+            }
+            if (!window.Html5Qrcode) {
+                setStatus('La librairie de scan QR ne s\'est pas chargée. Vérifie la connexion internet.');
+                return;
+            }
+            if (scannerRunning) return;
+
+            try {
+                html5QrCode = html5QrCode || new Html5Qrcode(SCANNER_REGION_ID, false);
+                await html5QrCode.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: qrboxSize },
+                    onScanSuccess,
+                    function() {}
+                );
+                scannerRunning = true;
+                elements.startButton.disabled = true;
+                elements.stopButton.disabled = false;
+                setStatus('Scanner actif : vise un QR code.');
+            } catch (error) {
+                setStatus('Impossible de lancer la caméra. Autorise la caméra puis réessaie.');
+            }
+        }
+
+        function qrboxSize(viewfinderWidth, viewfinderHeight) {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const size = Math.max(180, Math.floor(minEdge * 0.72));
+            return { width: size, height: size };
+        }
+
+        async function stopScanner() {
+            if (!html5QrCode || !scannerRunning) return;
+            try {
+                await html5QrCode.stop();
+            } catch (error) {
+                // Le scanner peut déjà être arrêté par le navigateur.
+            }
+            scannerRunning = false;
+            elements.startButton.disabled = !playerName || !isConfigured();
+            elements.stopButton.disabled = true;
+            setStatus('Scanner arrêté.');
+        }
+
+        async function onScanSuccess(decodedText) {
+            const code = cleanValue(decodedText, 120);
+            const now = Date.now();
+            if (!code || scanInProgress) return;
+            if (code === lastScannedCode && now - lastScanAt < SCAN_COOLDOWN_MS) return;
+            lastScannedCode = code;
+            lastScanAt = now;
+            scanInProgress = true;
+
+            try {
+                await handleCode(code);
+            } finally {
+                scanInProgress = false;
+            }
+        }
+
+        async function handleCode(code) {
+            if (playerState.scans.some(scan => scan.code === code)) {
+                setStatus('QR déjà scanné par toi : aucun point en plus.');
+                return;
+            }
+
+            setStatus('QR détecté : vérification...');
+
+            try {
+                const lookup = await jsonp({ action: 'lookup', code: code });
+                if (!lookup.success || !lookup.valid) {
+                    setStatus('Ce QR code ne fait pas partie du jeu.');
+                    return;
+                }
+
+                setStatus('+' + lookup.points + ' points trouvés ! Enregistrement...');
+                await postScan(code);
+
+                const confirmed = await waitForScanConfirmation(code);
+                if (confirmed) {
+                    setStatus('Bravo ! +' + lookup.points + ' points enregistrés.');
+                } else {
+                    setStatus('Scan envoyé. Le score peut mettre quelques secondes à apparaître.');
+                    await refreshState();
+                }
+            } catch (error) {
+                setStatus('Impossible de contacter le tableau des scores. Réessaie dans quelques secondes.');
+            }
+        }
+
+        async function postScan(code) {
+            const body = new URLSearchParams({
+                action: 'scan',
+                participant: playerName,
+                code: code
+            });
+
+            await fetch(QR_GAME_API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: body
+            });
+        }
+
+        async function waitForScanConfirmation(code) {
+            for (let attempt = 0; attempt < CONFIRMATION_ATTEMPTS; attempt++) {
+                await sleep(CONFIRMATION_DELAY_MS);
+                await refreshState(false);
+                if (playerState.scans.some(scan => scan.code === code)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        async function refreshState(showStatus) {
+            if (!isConfigured()) {
+                elements.configWarning.classList.remove('hidden');
+                elements.startButton.disabled = true;
+                setStatus('Configuration Google Sheets requise avant de jouer.');
+                return;
+            }
+
+            elements.configWarning.classList.add('hidden');
+
+            try {
+                const data = await jsonp({
+                    action: 'status',
+                    participant: playerName || ''
+                });
+                if (!data.success) throw new Error('status_failed');
+                playerState = {
+                    total: Number(data.total || 0),
+                    scans: Array.isArray(data.scans) ? data.scans : [],
+                    leaderboard: Array.isArray(data.leaderboard) ? data.leaderboard : []
+                };
+                renderState();
+                if (showStatus !== false && playerName) {
+                    setStatus('Score mis à jour pour ' + playerName + '.');
+                }
+            } catch (error) {
+                if (showStatus !== false) {
+                    setStatus('Classement indisponible pour le moment.');
+                }
+            }
+        }
+
+        function renderState() {
+            elements.playerScore.textContent = playerState.total;
+            elements.playerScanCount.textContent = playerState.scans.length;
+            renderPlayerScans();
+            renderLeaderboard();
+        }
+
+        function renderPlayerScans() {
+            elements.playerScans.innerHTML = '';
+            if (!playerName) {
+                elements.playerScans.innerHTML = '<div class="list-item small">Enregistre ton nom pour voir tes trouvailles.</div>';
+                return;
+            }
+            if (!playerState.scans.length) {
+                elements.playerScans.innerHTML = '<div class="list-item small">Aucun QR code scanné pour le moment.</div>';
+                return;
+            }
+
+            playerState.scans.slice().reverse().forEach(scan => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = '<strong>+' + escapeHtml(scan.points) + ' pts</strong> — ' + escapeHtml(scan.description || scan.code) + '<br><span class="small">' + escapeHtml(scan.date || '') + '</span>';
+                elements.playerScans.appendChild(div);
+            });
+        }
+
+        function renderLeaderboard() {
+            elements.leaderboard.innerHTML = '';
+            if (!playerState.leaderboard.length) {
+                elements.leaderboard.innerHTML = '<div class="list-item small">Aucun score pour le moment.</div>';
+                return;
+            }
+
+            playerState.leaderboard.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = '<strong>#' + (index + 1) + ' ' + escapeHtml(entry.participant) + '</strong><br>' + escapeHtml(entry.total) + ' points · ' + escapeHtml(entry.count) + ' QR';
+                elements.leaderboard.appendChild(div);
+            });
+        }
+
+        function jsonp(params) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'qrGameCallback' + Date.now() + Math.floor(Math.random() * 1000);
+                const script = document.createElement('script');
+                const urlParams = new URLSearchParams(params);
+                urlParams.set('callback', callbackName);
+
+                const timeout = window.setTimeout(() => {
+                    cleanup();
+                    reject(new Error('jsonp_timeout'));
+                }, 10000);
+
+                function cleanup() {
+                    window.clearTimeout(timeout);
+                    delete window[callbackName];
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                }
+
+                window[callbackName] = data => {
+                    cleanup();
+                    resolve(data || {});
+                };
+
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('jsonp_error'));
+                };
+                script.src = QR_GAME_API_URL + '?' + urlParams.toString() + '&cacheBust=' + Date.now();
+                document.body.appendChild(script);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('qr-game-sw.js').catch(function() {});
+            });
+        }
+
+        loadSavedPlayer();
+        refreshState(false);
+    </script>
+</body>
+</html>
