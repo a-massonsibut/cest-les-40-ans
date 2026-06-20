@@ -1,0 +1,20 @@
+{
+  "name": "Énigme QR - Anniversaire en Chartreuse",
+  "short_name": "Énigme QR",
+  "description": "Scanner des QR codes pour marquer des points pendant l'énigme du week-end.",
+  "start_url": "qr-game.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#191970",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "qr-game-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
