@@ -239,6 +239,35 @@
             margin-bottom: 10px;
         }
 
+        .scan-popup {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.76);
+            padding: 18px;
+        }
+
+        .scan-popup-card {
+            width: min(420px, 100%);
+            border: 3px solid #ffd700;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #191970, #4b0082);
+            box-shadow: 0 0 24px rgba(255, 20, 147, 0.9);
+            padding: 18px;
+            text-align: center;
+        }
+
+        .scan-popup-card p {
+            color: #ffffff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 18px;
+            line-height: 1.35;
+            margin: 0 0 14px;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -342,6 +371,13 @@
         </footer>
     </main>
 
+    <div class="scan-popup hidden" id="scanPopup" role="dialog" aria-modal="true" aria-labelledby="scanPopupMessage">
+        <div class="scan-popup-card">
+            <p id="scanPopupMessage"></p>
+            <button type="button" id="scanPopupCloseButton">OK</button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
         // Remplacer cette valeur par l'URL /exec du Web App Google Apps Script.
@@ -374,7 +410,10 @@
             playerScore: document.getElementById('playerScore'),
             playerScanCount: document.getElementById('playerScanCount'),
             playerScans: document.getElementById('playerScans'),
-            leaderboard: document.getElementById('leaderboard')
+            leaderboard: document.getElementById('leaderboard'),
+            scanPopup: document.getElementById('scanPopup'),
+            scanPopupMessage: document.getElementById('scanPopupMessage'),
+            scanPopupCloseButton: document.getElementById('scanPopupCloseButton')
         };
 
         function isConfigured() {
@@ -383,6 +422,23 @@
 
         function setStatus(message) {
             elements.statusMessage.textContent = message;
+        }
+
+        function showScanPopup(message) {
+            elements.scanPopupMessage.textContent = message;
+            elements.scanPopup.classList.remove('hidden');
+            elements.scanPopupCloseButton.focus();
+        }
+
+        function hideScanPopup() {
+            elements.scanPopup.classList.add('hidden');
+            if (scannerRunning) {
+                elements.stopButton.focus();
+            }
+        }
+
+        function normalizeCode(code) {
+            return cleanValue(code, 120).toLowerCase();
         }
 
         function cleanValue(value, maxLength) {
@@ -417,6 +473,13 @@
         elements.startButton.addEventListener('click', startScanner);
         elements.stopButton.addEventListener('click', stopScanner);
         elements.refreshButton.addEventListener('click', refreshState);
+        elements.scanPopupCloseButton.addEventListener('click', hideScanPopup);
+        elements.scanPopup.addEventListener('click', event => {
+            if (event.target === elements.scanPopup) hideScanPopup();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') hideScanPopup();
+        });
 
         async function startScanner() {
             if (!isConfigured()) {
@@ -472,8 +535,8 @@
         async function onScanSuccess(decodedText) {
             const code = cleanValue(decodedText, 120);
             const now = Date.now();
-            if (!code || scanInProgress) return;
-            if (code === lastScannedCode && now - lastScanAt < SCAN_COOLDOWN_MS) return;
+            if (!code || scanInProgress || !elements.scanPopup.classList.contains('hidden')) return;
+            if (normalizeCode(code) === normalizeCode(lastScannedCode) && now - lastScanAt < SCAN_COOLDOWN_MS) return;
             lastScannedCode = code;
             lastScanAt = now;
             scanInProgress = true;
@@ -486,8 +549,11 @@
         }
 
         async function handleCode(code) {
-            if (playerState.scans.some(scan => scan.code === code)) {
-                setStatus('QR déjà scanné par toi : aucun point en plus.');
+            const normalizedCode = normalizeCode(code);
+            if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
+                const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
+                setStatus(message);
+                showScanPopup(message);
                 return;
             }
 
@@ -496,16 +562,29 @@
             try {
                 const lookup = await jsonp({ action: 'lookup', code: code });
                 if (!lookup.success || !lookup.valid) {
-                    setStatus('Ce QR code ne fait pas partie du jeu.');
+                    const message = 'Ok bien tenté, mais ce code ne fait pas partie du jeu';
+                    setStatus(message);
+                    showScanPopup(message);
                     return;
                 }
 
-                setStatus('+' + lookup.points + ' points trouvés ! Enregistrement...');
+                await refreshState(false);
+                if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
+                    const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
+                    setStatus(message);
+                    showScanPopup(message);
+                    return;
+                }
+
+                const points = Number(lookup.points || 0);
+                setStatus('+' + points + ' points trouvés ! Enregistrement...');
                 await postScan(code);
 
                 const confirmed = await waitForScanConfirmation(code);
                 if (confirmed) {
-                    setStatus('Bravo ! +' + lookup.points + ' points enregistrés.');
+                    const message = 'Bien joué ! Tu gagnes ' + points + ' points. Ca te fait un total de ' + playerState.total;
+                    setStatus(message);
+                    showScanPopup(message);
                 } else {
                     setStatus('Scan envoyé. Le score peut mettre quelques secondes à apparaître.');
                     await refreshState();
@@ -533,7 +612,7 @@
             for (let attempt = 0; attempt < CONFIRMATION_ATTEMPTS; attempt++) {
                 await sleep(CONFIRMATION_DELAY_MS);
                 await refreshState(false);
-                if (playerState.scans.some(scan => scan.code === code)) {
+                if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizeCode(code))) {
                     return true;
                 }
             }
