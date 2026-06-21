@@ -355,11 +355,6 @@
                     </div>
                 </div>
 
-                <h2>🧾 Mes trouvailles</h2>
-                <div class="list" id="playerScans">
-                    <div class="list-item small">Aucun QR code scanné pour le moment.</div>
-                </div>
-
                 <h2 style="margin-top: 14px;">🥇 Classement</h2>
                 <div class="list" id="leaderboard">
                     <div class="list-item small">Classement en attente.</div>
@@ -411,7 +406,6 @@
             refreshButton: document.getElementById('refreshButton'),
             playerScore: document.getElementById('playerScore'),
             playerScanCount: document.getElementById('playerScanCount'),
-            playerScans: document.getElementById('playerScans'),
             leaderboard: document.getElementById('leaderboard'),
             scanPopup: document.getElementById('scanPopup'),
             scanPopupMessage: document.getElementById('scanPopupMessage'),
@@ -650,27 +644,7 @@
         function renderState() {
             elements.playerScore.textContent = playerState.total;
             elements.playerScanCount.textContent = playerState.scans.length;
-            renderPlayerScans();
             renderLeaderboard();
-        }
-
-        function renderPlayerScans() {
-            elements.playerScans.innerHTML = '';
-            if (!playerName) {
-                elements.playerScans.innerHTML = '<div class="list-item small">Enregistre ton nom pour voir tes trouvailles.</div>';
-                return;
-            }
-            if (!playerState.scans.length) {
-                elements.playerScans.innerHTML = '<div class="list-item small">Aucun QR code scanné pour le moment.</div>';
-                return;
-            }
-
-            playerState.scans.slice().reverse().forEach(scan => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = '<strong>+' + escapeHtml(scan.points) + ' pts</strong> — ' + escapeHtml(scan.description || scan.code) + '<br><span class="small">' + escapeHtml(scan.date || '') + '</span>';
-                elements.playerScans.appendChild(div);
-            });
         }
 
         function renderLeaderboard() {
