@@ -166,17 +166,6 @@
             border-radius: 8px;
         }
 
-        .status {
-            min-height: 22px;
-            border: 1px solid #4b0082;
-            background: #000000;
-            color: #ffd700;
-            font-size: 13px;
-            margin: 10px 0;
-            padding: 8px;
-            text-align: center;
-        }
-
         .score-card {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -337,8 +326,6 @@
                     <button type="submit" id="savePlayerButton">✅ Enregistrer le joueur</button>
                 </form>
 
-                <div class="status" id="statusMessage">Entre ton nom, puis lance le scanner.</div>
-
                 <div class="top-actions">
                     <button type="button" id="startButton" disabled>📷 Lancer le scanner</button>
                     <button type="button" id="stopButton" class="secondary" disabled>⏹ Stop</button>
@@ -419,7 +406,6 @@
             playerForm: document.getElementById('playerForm'),
             playerName: document.getElementById('playerName'),
             savePlayerButton: document.getElementById('savePlayerButton'),
-            statusMessage: document.getElementById('statusMessage'),
             startButton: document.getElementById('startButton'),
             stopButton: document.getElementById('stopButton'),
             refreshButton: document.getElementById('refreshButton'),
@@ -437,11 +423,10 @@
             return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(QR_GAME_API_URL);
         }
 
-        function setStatus(message) {
-            elements.statusMessage.textContent = message;
-        }
-
-        function showScanPopup(message, scannedCode) {
+        function showScanPopup(message, scannedCode, canClose) {
+            const wasHidden = elements.scanPopup.classList.contains('hidden');
+            const wasLocked = elements.scanPopup.dataset.canClose === 'false';
+            const isClosable = canClose !== false;
             elements.scanPopupMessage.textContent = message;
             if (DEBUG_MODE && scannedCode) {
                 elements.scanPopupDebug.textContent = 'QR code scanné : ' + scannedCode;
@@ -450,15 +435,17 @@
                 elements.scanPopupDebug.textContent = '';
                 elements.scanPopupDebug.classList.add('hidden');
             }
+            elements.scanPopupCloseButton.classList.toggle('hidden', !isClosable);
+            elements.scanPopup.dataset.canClose = isClosable ? 'true' : 'false';
             elements.scanPopup.classList.remove('hidden');
-            elements.scanPopupCloseButton.focus();
+            if (isClosable && (wasHidden || wasLocked)) {
+                elements.scanPopupCloseButton.focus();
+            }
         }
 
         function hideScanPopup() {
+            if (elements.scanPopup.dataset.canClose === 'false') return;
             elements.scanPopup.classList.add('hidden');
-            if (scannerRunning) {
-                elements.stopButton.focus();
-            }
         }
 
         function normalizeCode(code) {
@@ -477,7 +464,6 @@
             if (playerName) {
                 elements.playerName.value = playerName;
                 elements.startButton.disabled = !isConfigured();
-                setStatus('Joueur enregistré : ' + playerName + '. Tu peux lancer le scanner.');
             }
         }
 
@@ -485,12 +471,11 @@
             event.preventDefault();
             playerName = cleanValue(elements.playerName.value, 40);
             if (!playerName) {
-                setStatus('Entre ton prénom ou ton nom d\'équipe.');
+                alert('Entre ton prénom ou ton nom d\'équipe.');
                 return;
             }
             localStorage.setItem(STORAGE_PLAYER_KEY, playerName);
             elements.startButton.disabled = !isConfigured();
-            setStatus('Joueur enregistré : ' + playerName + '. Chargement du score...');
             await refreshState();
         });
 
@@ -507,15 +492,15 @@
 
         async function startScanner() {
             if (!isConfigured()) {
-                setStatus('Le jeu QR doit être configuré avant de scanner.');
+                alert('Le jeu QR doit être configuré avant de scanner.');
                 return;
             }
             if (!playerName) {
-                setStatus('Enregistre ton prénom ou ton équipe avant de scanner.');
+                alert('Enregistre ton prénom ou ton équipe avant de scanner.');
                 return;
             }
             if (!window.Html5Qrcode) {
-                setStatus('La librairie de scan QR ne s\'est pas chargée. Vérifie la connexion internet.');
+                alert('La librairie de scan QR ne s\'est pas chargée. Vérifie la connexion internet.');
                 return;
             }
             if (scannerRunning) return;
@@ -531,9 +516,8 @@
                 scannerRunning = true;
                 elements.startButton.disabled = true;
                 elements.stopButton.disabled = false;
-                setStatus('Scanner actif : vise un QR code.');
             } catch (error) {
-                setStatus('Impossible de lancer la caméra. Autorise la caméra puis réessaie.');
+                alert('Impossible de lancer la caméra. Autorise la caméra puis réessaie.');
             }
         }
 
@@ -553,7 +537,6 @@
             scannerRunning = false;
             elements.startButton.disabled = !playerName || !isConfigured();
             elements.stopButton.disabled = true;
-            setStatus('Scanner arrêté.');
         }
 
         async function onScanSuccess(decodedText) {
@@ -574,47 +557,39 @@
 
         async function handleCode(code) {
             const normalizedCode = normalizeCode(code);
+            showScanPopup('Scan en cours de vérification...', code, false);
+
             if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
-                const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
-                setStatus(message);
-                showScanPopup(message, code);
+                showScanPopup('Tu ne peux pas valider plusieurs fois le même QR code', code);
                 return;
             }
-
-            setStatus('QR détecté : vérification...');
 
             try {
                 const lookup = await jsonp({ action: 'lookup', code: code });
                 if (!lookup.success || !lookup.valid) {
-                    const message = 'Ok bien tenté, mais ce code ne fait pas partie du jeu';
-                    setStatus(message);
-                    showScanPopup(message, code);
+                    showScanPopup('Ok bien tenté, mais ce code ne fait pas partie du jeu', code);
                     return;
                 }
 
                 await refreshState(false);
                 if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
-                    const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
-                    setStatus(message);
-                    showScanPopup(message, code);
+                    showScanPopup('Tu ne peux pas valider plusieurs fois le même QR code', code);
                     return;
                 }
 
                 const points = Number(lookup.points || 0);
-                setStatus('+' + points + ' points trouvés ! Enregistrement...');
+                showScanPopup('Scan en cours de vérification...', code, false);
                 await postScan(code);
 
                 const confirmed = await waitForScanConfirmation(code);
                 if (confirmed) {
-                    const message = 'Bien joué ! Tu gagnes ' + points + ' points. Ca te fait un total de ' + playerState.total;
-                    setStatus(message);
-                    showScanPopup(message, code);
+                    showScanPopup('Bien joué ! Tu gagnes ' + points + ' points. Ca te fait un total de ' + playerState.total, code);
                 } else {
-                    setStatus('Scan envoyé. Le score peut mettre quelques secondes à apparaître.');
                     await refreshState();
+                    showScanPopup('Scan envoyé. Le score peut mettre quelques secondes à apparaître.', code);
                 }
             } catch (error) {
-                setStatus('Impossible de contacter le tableau des scores. Réessaie dans quelques secondes.');
+                showScanPopup('Impossible de contacter le tableau des scores. Réessaie dans quelques secondes.', code);
             }
         }
 
@@ -647,7 +622,7 @@
             if (!isConfigured()) {
                 elements.configWarning.classList.remove('hidden');
                 elements.startButton.disabled = true;
-                setStatus('Configuration Google Sheets requise avant de jouer.');
+                alert('Configuration Google Sheets requise avant de jouer.');
                 return;
             }
 
@@ -665,12 +640,9 @@
                     leaderboard: Array.isArray(data.leaderboard) ? data.leaderboard : []
                 };
                 renderState();
-                if (showStatus !== false && playerName) {
-                    setStatus('Score mis à jour pour ' + playerName + '.');
-                }
             } catch (error) {
                 if (showStatus !== false) {
-                    setStatus('Classement indisponible pour le moment.');
+                    alert('Classement indisponible pour le moment.');
                 }
             }
         }
