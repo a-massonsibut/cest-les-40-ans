@@ -389,14 +389,6 @@
             text-align: center;
         }
 
-        .date {
-            font-family: "Arial", sans-serif;
-            font-size: 10px;
-            color: #FFFFFF;
-            text-align: center;
-            margin: 5px 0;
-        }
-
         /* ===== MESSAGE STYLE ===== */
         .message {
             border-bottom: 1px dashed #4B0082;
@@ -867,25 +859,11 @@
                         <div class="counter-label">visiteurs depuis le 14/06/2026</div>
                     </div>
 
-                    <!-- HORLOGE -->
+                    <!-- COMPTE À REBOURS -->
                     <div class="box">
-                        <h3>⏰ HORLOGE</h3>
-                        <div class="clock" id="digitalClock">00:00:00</div>
-                        <div class="date" id="currentDate2">Lundi 14 Juin 2026</div>
-                    </div>
-
-                    <!-- MUSIQUE -->
-                    <div class="box">
-                        <h3>🎵 LECTEUR MUSICAL</h3>
-                        <select id="musicSelect" onchange="changeMusic();">
-                            <option value="">-- Sélectionne une musique --</option>
-                            <option value="backstreet">Backstreet Boys - I Want It That Way</option>
-                            <option value="britney">Britney Spears - Baby One More Time</option>
-                            <option value="spice">Spice Girls - Wannabe</option>
-                        </select>
-                        <button onclick="playMusic();">▶️ Play</button>
-                        <button onclick="stopMusic();">⏹️ Stop</button>
-                        <p id="nowPlaying" style="margin-top: 5px; font-size: 10px; color: #999999;"></p>
+                        <h3>⏳ COMPTE À REBOURS</h3>
+                        <div class="clock" id="countdownTimer">Chargement...</div>
+                        <div class="counter-label">jusqu'au 9 octobre à 18h</div>
                     </div>
 
                     <!-- PUBLICITE -->
@@ -931,23 +909,34 @@
         ];
         let guestCounts = { oui: 0, peutEtre: 0, non: 0 };
 
-        // ===== HORLOGE =====
-        function startClock() {
-            function updateClock() {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-                document.getElementById('digitalClock').textContent = hours + ':' + minutes + ':' + seconds;
+        // ===== COMPTE À REBOURS =====
+        function startCountdown() {
+            const targetDate = new Date('2026-10-09T18:00:00');
+            const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-                const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-                const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            function updateCountdown() {
+                const now = new Date();
                 const dateStr = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
                 document.getElementById('currentDate').textContent = dateStr;
-                document.getElementById('currentDate2').textContent = dateStr;
+
+                const diff = targetDate - now;
+                if (diff <= 0) {
+                    document.getElementById('countdownTimer').textContent = "C'EST PARTI !";
+                    return;
+                }
+
+                const totalSeconds = Math.floor(diff / 1000);
+                const remainingDays = Math.floor(totalSeconds / 86400);
+                const remainingHours = Math.floor((totalSeconds % 86400) / 3600).toString().padStart(2, '0');
+                const remainingMinutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+                const remainingSeconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+                document.getElementById('countdownTimer').textContent = remainingDays + 'j ' + remainingHours + 'h ' + remainingMinutes + 'm ' + remainingSeconds + 's';
             }
-            updateClock();
-            setInterval(updateClock, 1000);
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
         }
 
         // ===== COMPTEUR DE VISITEURS =====
@@ -1187,25 +1176,6 @@
             document.getElementById('guestbookStatus').textContent = message;
         }
 
-        // ===== MUSIQUE =====
-        function playMusic() {
-            const select = document.getElementById('musicSelect');
-            if (select.value) {
-                document.getElementById('nowPlaying').textContent = '⏳ Chargement...';
-                setTimeout(() => {
-                    document.getElementById('nowPlaying').textContent = '🎵 En cours : ' + select.options[select.selectedIndex].text;
-                }, 1000);
-            }
-        }
-
-        function stopMusic() {
-            document.getElementById('nowPlaying').textContent = '';
-        }
-
-        function changeMusic() {
-            // Peut être utilisé pour changer de musique
-        }
-
         // ===== SMOOTH SCROLL =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
@@ -1222,7 +1192,7 @@
         });
 
         // ===== INITIALISATION =====
-        startClock();
+        startCountdown();
         updateCounters();
         loadGuestbookMessages();
         setInterval(updateVisitorCounter, 15000);
