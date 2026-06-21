@@ -268,6 +268,20 @@
             margin: 0 0 14px;
         }
 
+        .scan-popup-debug {
+            border: 1px dashed #00bfff;
+            border-radius: 8px;
+            background: #000000;
+            color: #00bfff;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.35;
+            margin: 0 0 14px;
+            overflow-wrap: anywhere;
+            padding: 8px;
+            text-align: left;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -374,6 +388,7 @@
     <div class="scan-popup hidden" id="scanPopup" role="dialog" aria-modal="true" aria-labelledby="scanPopupMessage">
         <div class="scan-popup-card">
             <p id="scanPopupMessage"></p>
+            <div class="scan-popup-debug hidden" id="scanPopupDebug"></div>
             <button type="button" id="scanPopupCloseButton">OK</button>
         </div>
     </div>
@@ -389,6 +404,7 @@
         const SCAN_COOLDOWN_MS = 3000;
         const CONFIRMATION_ATTEMPTS = 7;
         const CONFIRMATION_DELAY_MS = 1200;
+        const DEBUG_MODE = true;
 
         let playerName = '';
         let html5QrCode = null;
@@ -413,6 +429,7 @@
             leaderboard: document.getElementById('leaderboard'),
             scanPopup: document.getElementById('scanPopup'),
             scanPopupMessage: document.getElementById('scanPopupMessage'),
+            scanPopupDebug: document.getElementById('scanPopupDebug'),
             scanPopupCloseButton: document.getElementById('scanPopupCloseButton')
         };
 
@@ -424,8 +441,15 @@
             elements.statusMessage.textContent = message;
         }
 
-        function showScanPopup(message) {
+        function showScanPopup(message, scannedCode) {
             elements.scanPopupMessage.textContent = message;
+            if (DEBUG_MODE && scannedCode) {
+                elements.scanPopupDebug.textContent = 'QR code scanné : ' + scannedCode;
+                elements.scanPopupDebug.classList.remove('hidden');
+            } else {
+                elements.scanPopupDebug.textContent = '';
+                elements.scanPopupDebug.classList.add('hidden');
+            }
             elements.scanPopup.classList.remove('hidden');
             elements.scanPopupCloseButton.focus();
         }
@@ -553,7 +577,7 @@
             if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
                 const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
                 setStatus(message);
-                showScanPopup(message);
+                showScanPopup(message, code);
                 return;
             }
 
@@ -564,7 +588,7 @@
                 if (!lookup.success || !lookup.valid) {
                     const message = 'Ok bien tenté, mais ce code ne fait pas partie du jeu';
                     setStatus(message);
-                    showScanPopup(message);
+                    showScanPopup(message, code);
                     return;
                 }
 
@@ -572,7 +596,7 @@
                 if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
                     const message = 'Tu ne peux pas valider plusieurs fois le même QR code';
                     setStatus(message);
-                    showScanPopup(message);
+                    showScanPopup(message, code);
                     return;
                 }
 
@@ -584,7 +608,7 @@
                 if (confirmed) {
                     const message = 'Bien joué ! Tu gagnes ' + points + ' points. Ca te fait un total de ' + playerState.total;
                     setStatus(message);
-                    showScanPopup(message);
+                    showScanPopup(message, code);
                 } else {
                     setStatus('Scan envoyé. Le score peut mettre quelques secondes à apparaître.');
                     await refreshState();
