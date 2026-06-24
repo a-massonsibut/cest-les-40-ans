@@ -27,7 +27,7 @@
 
         /* ===== CONTAINER PRINCIPAL ===== */
         .container {
-            width: 900px;
+            width: 980px;
             margin: 0 auto;
             background-color: #000000;
             border: 3px solid #FF1493;
@@ -100,11 +100,12 @@
         .main {
             display: table;
             width: 100%;
+            table-layout: fixed;
             border-spacing: 0;
         }
 
         .left-column {
-            width: 200px;
+            width: 280px;
             background-color: #000000;
             border-right: 1px dashed #FF1493;
             vertical-align: top;
@@ -487,7 +488,7 @@
         }
 
         /* ===== RESPONSIVE (pour mobile) ===== */
-        @media (max-width: 950px) {
+        @media (max-width: 1030px) {
             .container {
                 width: 100%;
             }
@@ -612,21 +613,21 @@
                                         <th>Disponibilité</th>
                                     </tr>
                                     <tr>
-                                        <td>11:34</td>
-                                        <td>15:09</td>
-                                        <td>3h35, 1 chgt</td>
-                                        <td>À vérifier (billets classiques)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>12:52</td>
-                                        <td>16:39</td>
-                                        <td>3h47, 1 chgt</td>
-                                        <td>À vérifier (billets classiques)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>14:14</td>
-                                        <td>17:13</td>
+                                        <td>15:14</td>
+                                        <td>18:13</td>
                                         <td>2h59 direct</td>
+                                        <td>À vérifier (billets classiques)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>18:14</td>
+                                        <td>21:13</td>
+                                        <td>2h59 direct</td>
+                                        <td>À vérifier (billets classiques)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>19:13</td>
+                                        <td>22:13</td>
+                                        <td>3h00 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                 </table>
@@ -642,20 +643,20 @@
                                         <th>Disponibilité</th>
                                     </tr>
                                     <tr>
-                                        <td>09:56</td>
-                                        <td>13:28</td>
-                                        <td>3h32, 1 chgt</td>
+                                        <td>07:10</td>
+                                        <td>10:13</td>
+                                        <td>3h03 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                     <tr>
-                                        <td>10:00</td>
-                                        <td>13:39</td>
-                                        <td>3h39, 1 chgt</td>
+                                        <td>10:14</td>
+                                        <td>13:13</td>
+                                        <td>2h59 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                     <tr>
-                                        <td>11:14</td>
-                                        <td>14:13</td>
+                                        <td>12:14</td>
+                                        <td>15:13</td>
                                         <td>2h59 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
@@ -672,36 +673,38 @@
                                         <th>Disponibilité</th>
                                     </tr>
                                     <tr>
-                                        <td>10:21</td>
-                                        <td>13:56</td>
-                                        <td>3h35, 1 chgt</td>
+                                        <td>09:46</td>
+                                        <td>12:46</td>
+                                        <td>3h00 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                     <tr>
-                                        <td>11:47</td>
-                                        <td>14:46</td>
+                                        <td>12:47</td>
+                                        <td>15:46</td>
                                         <td>2h59 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                     <tr>
-                                        <td>12:21</td>
-                                        <td>16:00</td>
-                                        <td>3h39, 1 chgt</td>
+                                        <td>14:45</td>
+                                        <td>17:46</td>
+                                        <td>3h01 direct</td>
                                         <td>À vérifier (billets classiques)</td>
                                     </tr>
                                 </table>
                             </details>
 
                             <p class="train-note">
-                                Horaires indicatifs relevés sur Trainline. La disponibilité affichée concerne les billets classiques (pas seulement TGV Max) et sera à confirmer sur Trainline/SNCF Connect au moment de réserver.
+                                Horaires directs indicatifs relevés sur SNCF Connect et Trainline. La disponibilité affichée concerne les billets classiques (pas seulement TGV Max) et sera à confirmer au moment de réserver.
                             </p>
                             <p class="ticket-links">
                                 🎫 SNCF Connect :<br>
-                                <a href="https://www.sncf-connect.com/train/trajet/paris/grenoble" target="_blank">Acheter l'aller</a> ·
-                                <a href="https://www.sncf-connect.com/train/trajet/grenoble/paris" target="_blank">Acheter le retour</a><br>
+                                <a href="https://www.sncf-connect.com/app/home/search?userInput=Paris%20Grenoble%209%20octobre%202026%2015h" target="_blank">Vendredi</a> ·
+                                <a href="https://www.sncf-connect.com/app/home/search?userInput=Paris%20Grenoble%2010%20octobre%202026%207h" target="_blank">Samedi</a> ·
+                                <a href="https://www.sncf-connect.com/app/home/search?userInput=Grenoble%20Paris%2011%20octobre%202026%209h" target="_blank">Retour dimanche</a><br>
                                 🎫 Trainline :<br>
-                                <a href="https://www.thetrainline.com/dpi?locale=fr&amp;origin=69b59b70a73b72302eff45627aeef377&amp;destination=b6a31c17cf9b572760dac13f12115b88&amp;outboundType=departAfter&amp;outboundTime=2026-10-09T11%3A00%3A00&amp;affiliateCode=tlseo&amp;currency=EUR&amp;passengers%5B0%5D%5Bdob%5D=1995-01-01" target="_blank">Acheter l'aller</a> ·
-                                <a href="https://www.thetrainline.com/dpi?locale=fr&amp;origin=b6a31c17cf9b572760dac13f12115b88&amp;destination=69b59b70a73b72302eff45627aeef377&amp;outboundType=departAfter&amp;outboundTime=2026-10-11T10%3A00%3A00&amp;affiliateCode=tlseo&amp;currency=EUR&amp;passengers%5B0%5D%5Bdob%5D=1995-01-01" target="_blank">Acheter le retour</a>
+                                <a href="https://www.thetrainline.com/dpi?locale=fr&amp;origin=69b59b70a73b72302eff45627aeef377&amp;destination=b6a31c17cf9b572760dac13f12115b88&amp;outboundType=departAfter&amp;outboundTime=2026-10-09T15%3A00%3A00&amp;affiliateCode=tlseo&amp;currency=EUR&amp;passengers%5B0%5D%5Bdob%5D=1995-01-01" target="_blank">Vendredi</a> ·
+                                <a href="https://www.thetrainline.com/dpi?locale=fr&amp;origin=69b59b70a73b72302eff45627aeef377&amp;destination=b6a31c17cf9b572760dac13f12115b88&amp;outboundType=departAfter&amp;outboundTime=2026-10-10T07%3A00%3A00&amp;affiliateCode=tlseo&amp;currency=EUR&amp;passengers%5B0%5D%5Bdob%5D=1995-01-01" target="_blank">Samedi</a> ·
+                                <a href="https://www.thetrainline.com/dpi?locale=fr&amp;origin=b6a31c17cf9b572760dac13f12115b88&amp;destination=69b59b70a73b72302eff45627aeef377&amp;outboundType=departAfter&amp;outboundTime=2026-10-11T09%3A00%3A00&amp;affiliateCode=tlseo&amp;currency=EUR&amp;passengers%5B0%5D%5Bdob%5D=1995-01-01" target="_blank">Retour dimanche</a>
                             </p>
                             <p style="margin-top: 10px;">
                                 <strong>🚗 EN VOITURE :</strong><br>
