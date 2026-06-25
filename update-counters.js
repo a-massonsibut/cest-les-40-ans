@@ -13,7 +13,7 @@ const path = require('path');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const counts = { oui: 0, peutEtre: 0, non: 0 };
+const counts = { oui: 11, peutEtre: 2, non: 0 };
 
 args.forEach(arg => {
   const [key, value] = arg.split('=');
