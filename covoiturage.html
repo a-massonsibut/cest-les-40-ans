@@ -1,0 +1,723 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <title>Covoiturage - Mon Anniversaire en Chartreuse</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">
+        /* ===== RESET SKYBLOG ===== */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            color: #FFFFFF;
+            font-family: "Comic Sans MS", sans-serif;
+            font-size: 12px;
+            overflow-x: hidden;
+            scrollbar-face-color: #FF1493;
+            scrollbar-track-color: #000000;
+            scrollbar-arrow-color: #FFFFFF;
+        }
+
+        /* ===== ARRIERE-PLAN ===== */
+        body {
+            background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            background-color: #000000;
+            background-attachment: fixed;
+        }
+
+        /* ===== CONTAINER PRINCIPAL ===== */
+        .container {
+            width: 980px;
+            margin: 0 auto;
+            background-color: #000000;
+            border: 3px solid #FF1493;
+            box-shadow: 0 0 20px #FF1493;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(90deg, #9400D3, #4B0082, #000080, #00BFFF);
+            padding: 5px;
+            text-align: center;
+            border-bottom: 2px solid #FFD700;
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 24px;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 0px #FF1493;
+            margin: 5px 0;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            font-family: "Comic Sans MS", sans-serif;
+            font-size: 14px;
+            color: #FFFF00;
+            margin: 5px 0;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            background-color: #191970;
+            padding: 5px;
+            text-align: center;
+            border-bottom: 2px solid #FFD700;
+        }
+
+        .nav a {
+            color: #FFFFFF;
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: bold;
+            font-family: "Arial", sans-serif;
+            padding: 2px 5px;
+            font-size: 11px;
+        }
+
+        .nav a:hover {
+            color: #FF1493;
+            text-decoration: underline;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 20px;
+            background-color: #000000;
+        }
+
+        /* ===== BOX STYLE ===== */
+        .box {
+            background-color: #191970;
+            border: 1px solid #4B0082;
+            padding: 15px;
+            margin-bottom: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .box h3 {
+            color: #FFD700;
+            font-size: 16px;
+            font-family: "Arial Black", sans-serif;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #FFFFFF;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .box-content {
+            color: #CCCCCC;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        /* ===== FORM STYLE ===== */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 3px;
+            color: #FFFFFF;
+            font-weight: bold;
+            font-family: "Arial", sans-serif;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 6px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 1px solid #FF1493;
+            font-family: "Comic Sans MS", sans-serif;
+            font-size: 11px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-option input {
+            width: auto;
+        }
+
+        button {
+            background-color: #FF1493;
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: "Arial Black", sans-serif;
+            font-size: 12px;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #FF69B4;
+        }
+
+        button:disabled {
+            background-color: #666666;
+            cursor: not-allowed;
+        }
+
+        /* ===== STATUS MESSAGE ===== */
+        .status-message {
+            margin-top: 15px;
+            padding: 8px;
+            text-align: center;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .status-success {
+            background-color: #008000;
+            color: #FFFFFF;
+        }
+
+        .status-error {
+            background-color: #8B0000;
+            color: #FFFFFF;
+        }
+
+        .status-info {
+            color: #FFD700;
+        }
+
+        /* ===== COVOIT LIST ===== */
+        .covoit-list {
+            margin-top: 20px;
+        }
+
+        .covoit-item {
+            background-color: #2A2A72;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #4B0082;
+        }
+
+        .covoit-item strong {
+            color: #FF1493;
+        }
+
+        .covoit-item .type {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 8px;
+        }
+
+        .covoit-item .type-propose {
+            background-color: #008000;
+            color: #FFFFFF;
+        }
+
+        .covoit-item .type-cherche {
+            background-color: #8B0000;
+            color: #FFFFFF;
+        }
+
+        .covoit-meta {
+            font-size: 10px;
+            color: #999999;
+            margin-top: 5px;
+        }
+
+        /* ===== BLINK EFFECT ===== */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1030px) {
+            .container {
+                width: 100%;
+            }
+            .box {
+                width: calc(100% - 40px);
+            }
+        }
+
+        /* ===== RSVP BUTTON STYLE ===== */
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF1493, #FF69B4, #FF1493);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 8px 15px;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #FF69B4);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="container">
+        <div class="header">
+            <h1>COVOITURAGE - ANNIVERSAIRE EN CHARTREUSE</h1>
+            <div class="subtitle">9-11 Octobre 2026 | Organisons nos trajets ensemble !</div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav">
+            <a href="index.html">← Retour à l'accueil</a>
+            <a href="#formulaire">Nouvelle annonce</a>
+            <a href="#liste">Voir les annonces</a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- FORMULAIRE -->
+            <div id="formulaire">
+                <div class="box">
+                    <h3>➕ NOUVELLE ANNONCE DE COVOITURAGE</h3>
+                    <div class="box-content">
+                        <form id="covoitForm" onsubmit="submitCovoitForm(event); return false;">
+                            <div class="form-group">
+                                <label for="nom">👤 Ton nom *</label>
+                                <input type="text" id="nom" name="nom" placeholder="Ex: Agnès" required maxlength="50">
+                            </div>
+
+                            <div class="form-group">
+                                <label>🚗 Type d'annonce *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="type-propose" name="type" value="Propose" required>
+                                        <label for="type-propose">Je propose un covoiturage</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="type-cherche" name="type" value="Cherche">
+                                        <label for="type-cherche">Je cherche un covoiturage</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="depart">📍 Lieu de départ *</label>
+                                <select id="depart" name="depart" required>
+                                    <option value="">-- Sélectionne un lieu --</option>
+                                    <option value="Paris">Paris</option>
+                                    <option value="Gare de Grenoble">Gare de Grenoble</option>
+                                    <option value="Lyon">Lyon</option>
+                                    <option value="Autre">Autre (préciser ci-dessous)</option>
+                                </select>
+                                <input type="text" id="depart-autre" name="depart_autre" placeholder="Précise le lieu de départ" style="display: none; margin-top: 5px;">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="places">👥 Nombre de places *</label>
+                                <input type="number" id="places" name="places" min="1" max="8" value="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date">📅 Date et heure approximative *</label>
+                                <input type="datetime-local" id="date" name="date" required>
+                                <small style="color: #999999; display: block; margin-top: 3px;">
+                                    Indique la date et l'heure approximative de départ<br>
+                                    (ex: Vendredi 9 octobre à 14h00)
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="commentaire">💬 Commentaire (optionnel)</label>
+                                <textarea id="commentaire" name="commentaire" placeholder="Ex: J'ai une voiture spacieuse, je peux prendre des bagages..." maxlength="300"></textarea>
+                            </div>
+
+                            <!-- Honeypot pour anti-spam -->
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" style="display: none;" aria-hidden="true">
+
+                            <button type="submit" id="submitButton">✉️ PUBLIER MON ANNONCE</button>
+                        </form>
+
+                        <div id="formStatus" class="status-message" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LISTE DES COVOITURAGES -->
+            <div id="liste">
+                <div class="box">
+                    <h3>🚗 LISTE DES ANNONCES DE COVOITURAGE</h3>
+                    <div class="box-content">
+                        <p style="text-align: center; margin-bottom: 15px;">
+                            <span class="blink">NOUVEAU !</span> Consulte les offres et demandes de covoiturage
+                        </p>
+                        <div id="covoitListContainer" class="covoit-list">
+                            <div class="status-message status-info">Chargement des annonces...</div>
+                        </div>
+                        <p style="text-align: center; margin-top: 15px;">
+                            <a href="#formulaire" class="back-button">➕ Ajouter une annonce</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BACK TO HOME -->
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="index.html" class="back-button">← RETOUR À L'ACCUEIL</a>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer" style="background: linear-gradient(90deg, #9400D3, #4B0082, #000080, #00BFFF); padding: 10px; text-align: center; border-top: 2px solid #FFD700; font-size: 10px; font-family: 'Arial', sans-serif;">
+            <p>
+                © 2026 - Mon Skyblog Anniversaire | 
+                <a href="index.html" style="color: #FFFFFF;">Accueil</a> |
+                <a href="https://forms.gle/CYPt1pSpw3Xtrjp76" target="_blank" rel="noopener noreferrer" style="color: #FFFFFF;">RSVP</a> |
+                <a href="#livre-or" style="color: #FFFFFF;">Livre d'Or</a>
+            </p>
+            <p style="margin-top: 5px;">
+                Ce site a été créé avec ❤️ et beaucoup de nostalgie | 
+                <span class="blink">Site optimisé pour Internet Explorer 6</span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Google Sheets - utilise le même script que le livre d'or
+        const GUESTBOOK_SHEET_ID = '17N5YJxQmmbHv7IKyeqHqmH7AOJoHJe9kS146kJBsZRw';
+        const COVOIT_SHEET_GID = 396744017; // ID de l'onglet "Covoiturage"
+        const COVOIT_READ_BASE_URL = 'https://docs.google.com/spreadsheets/d/' + GUESTBOOK_SHEET_ID + '/gviz/tq?headers=1&gid=' + encodeURIComponent(COVOIT_SHEET_GID);
+        // Utilise le même Web App URL que pour le livre d'or
+        const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbyL_ds5CQRg48UMjBSnTtbPtowrACbb9s7Igm0jKbmAWYMOK6uwGcBCtUb4rJM-RMB6/exec';
+
+        // Données locales par défaut
+        let covoitData = [];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCovoitData();
+            setupFormListeners();
+            setDefaultDate();
+        });
+
+        function setDefaultDate() {
+            // Par défaut, on propose le vendredi 9 octobre 2026 à 14h
+            const defaultDate = '2026-10-09T14:00';
+            document.getElementById('date').value = defaultDate;
+        }
+
+        function setupFormListeners() {
+            // Gestion du champ "Autre" pour le lieu de départ
+            const departSelect = document.getElementById('depart');
+            const departAutre = document.getElementById('depart-autre');
+            
+            departSelect.addEventListener('change', function() {
+                if (this.value === 'Autre') {
+                    departAutre.style.display = 'block';
+                    departAutre.required = true;
+                } else {
+                    departAutre.style.display = 'none';
+                    departAutre.required = false;
+                    departAutre.value = '';
+                }
+            });
+        }
+
+        async function submitCovoitForm(event) {
+            if (event) event.preventDefault();
+
+            const form = document.getElementById('covoitForm');
+            const submitButton = document.getElementById('submitButton');
+            const statusDiv = document.getElementById('formStatus');
+
+            // Anti-spam honeypot
+            const honeypot = document.getElementById('website').value;
+            if (honeypot) {
+                return;
+            }
+
+            // Validation du formulaire
+            if (!form.checkValidity()) {
+                showStatus(statusDiv, 'Veuillez remplir tous les champs obligatoires !', 'error');
+                form.reportValidity();
+                return;
+            }
+
+            // Récupération des données
+            const nom = document.getElementById('nom').value.trim();
+            const type = document.querySelector('input[name="type"]:checked').value;
+            let depart = document.getElementById('depart').value;
+            const departAutre = document.getElementById('depart-autre').value.trim();
+            
+            if (depart === 'Autre' && departAutre) {
+                depart = departAutre;
+            }
+            
+            const places = document.getElementById('places').value;
+            const date = document.getElementById('date').value;
+            const commentaire = document.getElementById('commentaire').value.trim();
+
+            // Désactivation du bouton
+            submitButton.disabled = true;
+            showStatus(statusDiv, 'Envoi de ton annonce en cours...', 'info');
+
+            try {
+                // Formatage de la date pour affichage
+                const formattedDate = formatDateForDisplay(date);
+
+                // Préparation des données pour Google Sheets
+                // On utilise le même format que le livre d'or mais avec action=covoit
+                const formData = new URLSearchParams({
+                    action: 'covoit',
+                    name: nom,
+                    type: type,
+                    depart: depart,
+                    places: places,
+                    date: date,
+                    date_display: formattedDate,
+                    message: commentaire,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Envoi des données
+                const response = await fetch(GUESTBOOK_WRITE_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+
+                // Attendre et vérifier que les données sont bien enregistrées
+                const saved = await waitForCovoitInSheet(nom, type, depart, places, date);
+                
+                if (saved) {
+                    showStatus(statusDiv, '✅ Ton annonce a été publiée avec succès ! Merci !', 'success');
+                    form.reset();
+                    document.getElementById('depart-autre').style.display = 'none';
+                    loadCovoitData(); // Recharger la liste
+                } else {
+                    throw new Error('Données non retrouvées dans le Google Sheet');
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatus(statusDiv, '❌ Une erreur est survenue. Veuillez réessayer dans quelques instants.', 'error');
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        async function waitForCovoitInSheet(nom, type, depart, places, date) {
+            // Attendre 2 secondes pour que Google Sheets se mette à jour
+            for (let attempt = 0; attempt < 10; attempt++) {
+                await sleep(1000);
+                await loadCovoitData();
+                
+                // Vérifier si notre annonce est présente
+                const found = covoitData.some(c => 
+                    c.nom === nom && 
+                    c.type === type && 
+                    c.depart === depart && 
+                    c.places === places && 
+                    c.date === date
+                );
+                
+                if (found) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function loadCovoitData() {
+            const container = document.getElementById('covoitListContainer');
+            
+            try {
+                const data = await loadGoogleSheetData();
+                const rows = data.table.rows || [];
+                
+                covoitData = rows.map(row => {
+                    const cells = row.c || [];
+                    return {
+                        nom: getCellValue(cells[0]),
+                        type: getCellValue(cells[1]),
+                        depart: getCellValue(cells[2]),
+                        places: getCellValue(cells[3]),
+                        date: getCellValue(cells[4]),
+                        date_display: getCellValue(cells[5]),
+                        commentaire: getCellValue(cells[6]),
+                        timestamp: getCellValue(cells[7])
+                    };
+                }).filter(c => c.nom && c.type && c.depart);
+
+                displayCovoitList();
+                
+            } catch (error) {
+                console.error('Erreur de chargement:', error);
+                container.innerHTML = '<div class="status-message status-error">Impossible de charger les annonces. Réessaie plus tard.</div>';
+            }
+        }
+
+        function loadGoogleSheetData() {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'covoitSheetCallback' + Date.now();
+                const script = document.createElement('script');
+                const cleanup = () => {
+                    delete window[callbackName];
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                };
+
+                window[callbackName] = data => {
+                    cleanup();
+                    resolve(data);
+                };
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('Lecture Google Sheets impossible'));
+                };
+                script.src = COVOIT_READ_BASE_URL + '&tqx=out:json;responseHandler:' + callbackName + '&cacheBust=' + Date.now();
+                document.body.appendChild(script);
+            });
+        }
+
+        function getCellValue(cell) {
+            if (!cell || cell.v === null || cell.v === undefined) return '';
+            return String(cell.f || cell.v).trim();
+        }
+
+        function displayCovoitList() {
+            const container = document.getElementById('covoitListContainer');
+            
+            if (covoitData.length === 0) {
+                container.innerHTML = '<div class="status-message status-info">Aucune annonce de covoiturage pour l\'instant. Sois le/la premier(e) !</div>';
+                return;
+            }
+
+            // Trier par date (plus récentes en premier)
+            covoitData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            container.innerHTML = '';
+            
+            covoitData.forEach(covoit => {
+                const div = document.createElement('div');
+                div.className = 'covoit-item';
+                
+                const typeClass = covoit.type === 'Propose' ? 'type-propose' : 'type-cherche';
+                const typeText = covoit.type === 'Propose' ? 'PROPOSE' : 'CHERCHE';
+                
+                div.innerHTML = `
+                    <strong>${covoit.nom}</strong> <span class="type ${typeClass}">${typeText}</span>
+                    <div style="margin-top: 5px;">
+                        <strong>📍 Départ :</strong> ${covoit.depart}<br>
+                        <strong>👥 Places :</strong> ${covoit.places}<br>
+                        <strong>📅 Date :</strong> ${covoit.date_display || formatDateForDisplay(covoit.date)}
+                        ${covoit.commentaire ? '<br><strong>💬 ' + covoit.commentaire + '</strong>' : ''}
+                    </div>
+                    <div class="covoit-meta">Publié le ${formatTimestamp(covoit.timestamp)}</div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '';
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            
+            const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+            
+            const dayName = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${dayName} ${day} ${month} ${year} à ${hours}:${minutes}`;
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'date inconnue';
+            
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) return timestamp;
+            
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${day}/${month}/${year} à ${hours}:${minutes}`;
+        }
+
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = 'status-message status-' + type;
+            element.style.display = 'block';
+        }
+
+        // Smooth scroll pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
