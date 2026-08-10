@@ -430,7 +430,7 @@
         const COVOIT_SHEET_GID = 396744017; // ID de l'onglet "Covoiturage"
         const COVOIT_READ_BASE_URL = 'https://docs.google.com/spreadsheets/d/' + GUESTBOOK_SHEET_ID + '/gviz/tq?headers=1&gid=' + encodeURIComponent(COVOIT_SHEET_GID);
         // Utilise le même Web App URL que pour le livre d'or
-        const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbyL_ds5CQRg48UMjBSnTtbPtowrACbb9s7Igm0jKbmAWYMOK6uwGcBCtUb4rJM-RMB6/exec';
+        const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbwEC4OzvxKZgoFcQD_s1d_sXw6cNuR8DEFMcpkO3Yrn1mfY_Xq7UxJhzCEeAr1uxFZ/exec';
 
         // Données locales par défaut
         let covoitData = [];
@@ -666,38 +666,38 @@
         }
 
         function formatDateForDisplay(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    
-    const dayName = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${dayName} ${day} ${month} ${year} à ${hours}:${minutes}`;
-} ${day} ${month} ${year} à ${hours}:${minutes}`;
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+            
+            const dayName = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${dayName} ${day} ${month} ${year} à ${hours}:${minutes}`;
         }
 
+
         function formatTimestamp(timestamp) {
-    if (!timestamp) return 'date inconnue';
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return timestamp;
-    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    const dayName = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${dayName} ${day} ${month} ${year} à ${hours}:${minutes}`;
-}/${month}/${year} à ${hours}:${minutes}`;
+            if (!timestamp) return 'date inconnue';
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) return timestamp;
+            const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+            const dayName = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${dayName} ${day} ${month} ${year} à ${hours}:${minutes}`;
         }
+
 
         function showStatus(element, message, type) {
             element.textContent = message;
