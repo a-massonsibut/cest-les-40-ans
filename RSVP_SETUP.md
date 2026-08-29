@@ -3,31 +3,31 @@
 ## 📋 Résumé
 
 Ce système permet de :
-1. **Collecter les réponses RSVP de manière sécurisée** via Netlify Forms
+1. **Collecter les réponses RSVP de manière sécurisée** via Google Forms
 2. **Afficher les compteurs d'invités** (Oui, Peut-être, Non) sur la page d'accueil
-3. **Garder les réponses privées** (uniquement visibles par vous dans Netlify)
+3. **Garder les réponses privées** (uniquement visibles par vous dans Google Forms)
 
 ---
 
 ## 🚀 Configuration rapide
 
-### Étape 1 : Déployer sur Netlify
+### Étape 1 : Configurer Google Forms
 
-1. Créez un compte Netlify (gratuit) : https://www.netlify.com/
-2. Importez votre dépôt GitHub
-3. Déployez le site
-4. Attendez que le déploiement soit terminé
+1. Créez un formulaire Google Forms : https://forms.gle/
+2. Ajoutez les questions nécessaires pour collecter les réponses RSVP
+3. Partagez le lien du formulaire
+4. Testez le formulaire
 
 ### Étape 2 : Tester le formulaire
 
-1. Allez sur `https://votre-site.netlify.app/rsvp.html`
+1. Allez sur le lien de votre Google Form
 2. Remplissez le formulaire avec un test
 3. Soumettez-le
-4. **Vérifiez dans Netlify** :
-   - Allez dans votre tableau de bord Netlify
-   - Cliquez sur votre site
-   - Allez dans l'onglet **"Forms"**
-   - Vous devriez voir votre soumission dans la liste "rsvp"
+4. **Vérifiez dans Google Forms** :
+   - Allez dans votre tableau de bord Google Forms
+   - Cliquez sur votre formulaire
+   - Allez dans l'onglet **"Réponses"**
+   - Vous devriez voir votre soumission dans la liste
 
 ✅ **Si vous voyez votre soumission, le formulaire fonctionne !**
 
@@ -77,7 +77,7 @@ jobs:
 
 **La méthode la plus simple et la plus fiable** :
 
-1. **Allez dans Netlify** → onglet **Forms**
+1. **Allez dans Google Forms** → onglet **Réponses**
 2. **Comptez les soumissions** :
    - Combien de "oui" ?
    - Combien de "peutEtre" ?
@@ -120,7 +120,7 @@ node update-counters.js oui=5 peutEtre=2 non=1
 ## 🔍 Vérifier que tout fonctionne
 
 ### 1. Le formulaire fonctionne ?
-- [ ] Je vois mes soumissions dans Netlify → Forms
+- [ ] Je vois mes soumissions dans Google Forms → Réponses
 - [ ] Les emails de notification arrivent (si configuré)
 
 ### 2. Les compteurs s'affichent ?
@@ -136,15 +136,8 @@ node update-counters.js oui=5 peutEtre=2 non=1
 
 ### Problème : "Le formulaire ne soumet pas"
 **Solutions :**
-- Vérifiez que le site est déployé sur Netlify (pas en local)
-- Vérifiez que le formulaire a bien l'attribut `netlify` :
-  ```html
-  <form name="rsvp" method="POST" netlify ...>
-  ```
-- Vérifiez qu'il y a bien un champ caché `form-name` :
-  ```html
-  <input type="hidden" name="form-name" value="rsvp" />
-  ```
+- Vérifiez que le lien du Google Form est correct
+- Vérifiez que le formulaire est accessible publiquement
 
 ### Problème : "Les compteurs ne se mettent pas à jour"
 **Solutions :**
@@ -169,15 +162,14 @@ node update-counters.js oui=5 peutEtre=2 non=1
 | `index.html` | Page d'accueil avec les compteurs |
 | `data/rsvp-counts.json` | Données des compteurs (à mettre à jour) |
 | `update-counters.js` | Script pour mettre à jour les compteurs |
-| `netlify.toml` | Configuration Netlify |
 
 ---
 
 ## 🎯 Résumé des étapes pour faire fonctionner les compteurs
 
-1. **Déployer sur Netlify** ✅
-2. **Tester le formulaire** (vous devriez voir les soumissions dans Netlify Forms) ✅
-3. **Compter les soumissions** dans Netlify Forms
+1. **Configurer Google Forms** ✅
+2. **Tester le formulaire** (vous devriez voir les soumissions dans Google Forms Réponses) ✅
+3. **Compter les soumissions** dans Google Forms Réponses
 4. **Mettre à jour** `data/rsvp-counts.json` avec les bons nombres
 5. **Commiter et pousser** les changements
 6. **Attendre le déploiement** (1-2 min)

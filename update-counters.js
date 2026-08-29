@@ -2,7 +2,7 @@
  * Script pour mettre à jour les compteurs RSVP manuellement
  * 
  * Utilisation:
- * 1. Récupérez les soumissions depuis Netlify Forms
+ * 1. Récupérez les soumissions depuis Google Forms
  * 2. Comptez les réponses "oui", "peutEtre", "non"
  * 3. Exécutez: node update-counters.js oui=5 peutEtre=2 non=1
  * 4. Commitez et poussez data/rsvp-counts.json

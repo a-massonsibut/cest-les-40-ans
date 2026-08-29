@@ -50,7 +50,7 @@ La web app met à jour une ligne par participant :
 
 ## Créer le Web App Google Apps Script
 
-GitHub Pages / Netlify ne peut pas écrire directement dans Google Sheets depuis le navigateur. Il faut donc un Web App Google Apps Script.
+GitHub Pages ne peut pas écrire directement dans Google Sheets depuis le navigateur. Il faut donc un Web App Google Apps Script.
 
 1. Ouvrir le Spreadsheet.
 2. Aller dans **Extensions → Apps Script**.
