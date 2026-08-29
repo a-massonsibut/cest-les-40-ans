@@ -1056,6 +1056,7 @@
         let messages = defaultMessages.slice();
         let visibleMessagesCount = 5;
         let guestCounts = { oui: 0, peutEtre: 0, non: 0 };
+        let covoitData = [];
 
         // ===== COMPTE À REBOURS =====
         function startCountdown() {
@@ -1096,7 +1097,6 @@
 
         function updateCounters() {
             updateGuestCounts();
-            updateCovoitList();
         }
 
         async function updateGuestCounts() {
@@ -1184,60 +1184,18 @@
             });
         }
 
-        function getCovoitCellValue(cell) {
+                function getCovoitCellValue(cell) {
             if (!cell || cell.v === null || cell.v === undefined) return '';
             return String(cell.f || cell.v).trim();
         }
 
         function updateCovoitList() {
-    const container = document.getElementById('covoitList');
-    
-    if (covoitData.length === 0) {
-        container.innerHTML = '<div class="covoit-item"><em style="color: #999999;">Aucun covoiturage proposé pour l'instant.</em></div>';
-        return;
-    }
+            const container = document.getElementById('covoitList');
 
-    container.innerHTML = '';
-
-    covoitData.sort((a, b) => a.nom.localeCompare(b.nom));
-
-    covoitData.forEach(covoit => {
-        const div = document.createElement('div');
-        div.className = 'covoit-item';
-        
-        const typeText = covoit.type === 'Propose' ? 'Propose' : 'Cherche';
-        const typeClass = covoit.type === 'Propose' ? 'covoit-type-propose' : 'covoit-type-cherche';
-        
-        div.innerHTML = 
-            '<strong>' + covoit.nom + '</strong> <span class="covoit-type-badge ' + typeClass + '">' + typeText + '</span><br>' +
-            'Départ : ' + covoit.depart + '<br>' +
-            'Places : ' + covoit.places + '<br>' +
-            'Date : ' + (covoit.date_display || covoit.date) +
-            (covoit.commentaire ? '<br><em>' + covoit.commentaire + '</em>' : '');
-        container.appendChild(div);
-    });
-}
-
-    container.innerHTML = '';
-
-    covoitData.sort((a, b) => a.nom.localeCompare(b.nom));
-
-    covoitData.forEach(covoit => {
-        const div = document.createElement('div');
-        div.className = 'covoit-item';
-        
-        const typeText = covoit.type === 'Propose' ? 'Propose' : 'Cherche';
-        const typeClass = covoit.type === 'Propose' ? 'covoit-type-propose' : 'covoit-type-cherche';
-        
-        div.innerHTML = 
-            '<strong>' + covoit.nom + '</strong> <span class="covoit-type-badge ' + typeClass + '">' + typeText + '</span><br>' +
-            'Départ : ' + covoit.depart + '<br>' +
-            'Places : ' + covoit.places + '<br>' +
-            'Date : ' + (covoit.date_display || covoit.date) +
-            (covoit.commentaire ? '<br><em>' + covoit.commentaire + '</em>' : '');
-        container.appendChild(div);
-    });
-}
+            if (covoitData.length === 0) {
+                container.innerHTML = '<div class="covoit-item"><em style="color: #999999;">Aucun covoiturage proposé pour l'instant.</em></div>';
+                return;
+            }
 
             container.innerHTML = '';
 
@@ -1246,12 +1204,12 @@
             covoitData.forEach(covoit => {
                 const div = document.createElement('div');
                 div.className = 'covoit-item';
-                
+
                 const typeText = covoit.type === 'Propose' ? 'Propose' : 'Cherche';
-                const typeColor = covoit.type === 'Propose' ? '#00FF00' : '#FF6666';
-                
-                div.innerHTML = 
-                    '<strong>' + covoit.nom + '</strong> <span style="color: ' + typeColor + '; font-size: 10px;">[' + typeText + ']</span><br>' +
+                const typeClass = covoit.type === 'Propose' ? 'covoit-type-propose' : 'covoit-type-cherche';
+
+                div.innerHTML =
+                    '<strong>' + covoit.nom + '</strong> <span class="covoit-type-badge ' + typeClass + '">' + typeText + '</span><br>' +
                     'Départ : ' + covoit.depart + '<br>' +
                     'Places : ' + covoit.places + '<br>' +
                     'Date : ' + (covoit.date_display || covoit.date) +
@@ -1453,7 +1411,6 @@
         updateCounters();
         loadGuestbookMessages();
         setInterval(updateVisitorCounter, 15000);
-        loadCovoitData();
         loadCovoitData();
     </script>
 </body>
