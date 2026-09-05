@@ -1046,9 +1046,7 @@
     <script>
         const GUESTBOOK_SHEET_ID = '17N5YJxQmmbHv7IKyeqHqmH7AOJoHJe9kS146kJBsZRw';
         const GUESTBOOK_SHEET_GID = 0;
-        const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
-        const GUESTBOOK_READ_URL = 'https://script.google.com/macros/s/AKfycbyIpz3z7_TaMZ5SAQ3leg4_K-tlzJkcfGv3r5LEWxzls2m2JAPg2-I_QB4nAJPOOawj/exec?action=guestbook';
-        const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbyIpz3z7_TaMZ5SAQ3leg4_K-tlzJkcfGv3r5LEWxzls2m2JAPg2-I_QB4nAJPOOawj/exec';
+        const GUESTBOOK_WRITE_URL = 'https://script.google.com/macros/s/AKfycbwrmlIE67xit_DrMy7xBpFh0tHQ19TNW357cHkalYKs4gZSpDwiDS3OLA9fhVss2-m8/exec';
         
         const defaultMessages = [
             {pseudo: 'Agnès', text: 'Bienvenue sur mon Skyblog spécial anniversaire ! Hâte de vous voir en Chartreuse ! 💖', date: '14/06/2026'}
@@ -1291,7 +1289,7 @@
             }
 
             try {
-                const response = await fetch(GUESTBOOK_READ_URL + '&cacheBust=' + Date.now());
+                const response = await fetch(GUESTBOOK_WRITE_URL + '?action=guestbook&cacheBust=' + Date.now());
                 if (!response.ok) throw new Error('Network error');
                 
                 const data = await response.json();
@@ -1322,7 +1320,7 @@
         function loadGoogleSheetData() {
             return new Promise(async (resolve, reject) => {
                 try {
-                    const response = await fetch(GUESTBOOK_READ_URL + '&cacheBust=' + Date.now());
+                    const response = await fetch(GUESTBOOK_WRITE_URL + '?action=guestbook&cacheBust=' + Date.now());
                     if (!response.ok) throw new Error('Network error');
                     const data = await response.json();
                     resolve(data);
