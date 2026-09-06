@@ -1347,10 +1347,22 @@
         }
 
         function formatSheetDate(value) {
-            const dateMatch = /^Date\((\d+),(\d+),(\d+)/.exec(value);
-            if (dateMatch) {
-                const date = new Date(parseInt(dateMatch[1], 10), parseInt(dateMatch[2], 10), parseInt(dateMatch[3], 10));
+            // Format historique gviz : Date(2026,5,14)
+            const gvizMatch = /^Date\((\d+),(\d+),(\d+)/.exec(value);
+            if (gvizMatch) {
+                const date = new Date(parseInt(gvizMatch[1], 10), parseInt(gvizMatch[2], 10), parseInt(gvizMatch[3], 10));
                 return date.toLocaleDateString('fr-FR');
+            }
+            // Format renvoyé par le nouveau script (Date.toString(), parfois tronqué) :
+            // ex. "Sat Sep 05 2026 00:0" ou "Sat Sep 05 2026 00:00:00 GMT+0200 (...)"
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const jsDateMatch = /^\w{3}\s+(\w{3})\s+(\d{1,2})\s+(\d{4})/.exec(value);
+            if (jsDateMatch) {
+                const monthIndex = months.indexOf(jsDateMatch[1]);
+                if (monthIndex !== -1) {
+                    const date = new Date(parseInt(jsDateMatch[3], 10), monthIndex, parseInt(jsDateMatch[2], 10));
+                    return date.toLocaleDateString('fr-FR');
+                }
             }
             return value;
         }
