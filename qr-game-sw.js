@@ -1,4 +1,4 @@
-const QR_GAME_CACHE = 'qr-game-v4';
+const QR_GAME_CACHE = 'qr-game-v5';
 const QR_GAME_ASSETS = [
   'qr-game.html',
   'qr-game.webmanifest',
