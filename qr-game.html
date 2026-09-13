@@ -542,6 +542,8 @@
             lastScanAt = now;
             scanInProgress = true;
 
+            await stopScanner();
+
             try {
                 await handleCode(code);
             } finally {
