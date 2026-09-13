@@ -542,6 +542,7 @@
             lastScanAt = now;
             scanInProgress = true;
 
+            showScanPopup('Scan en cours de vérification...', code, false);
             await stopScanner();
 
             try {
@@ -624,6 +625,14 @@
 
             elements.configWarning.classList.add('hidden');
 
+            const wasLoading = elements.refreshButton.disabled;
+            if (!wasLoading) {
+                elements.refreshButton.disabled = true;
+                elements.refreshButton.dataset.label = elements.refreshButton.textContent;
+                elements.refreshButton.textContent = '⏳ Chargement...';
+                elements.leaderboard.innerHTML = '<div class="list-item small">Chargement du classement...</div>';
+            }
+
             try {
                 const data = await jsonp({
                     action: 'status',
@@ -639,6 +648,14 @@
             } catch (error) {
                 if (showStatus !== false) {
                     alert('Classement indisponible pour le moment.');
+                }
+            } finally {
+                if (!wasLoading) {
+                    elements.refreshButton.disabled = false;
+                    if (elements.refreshButton.dataset.label) {
+                        elements.refreshButton.textContent = elements.refreshButton.dataset.label;
+                        delete elements.refreshButton.dataset.label;
+                    }
                 }
             }
         }
