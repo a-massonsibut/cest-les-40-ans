@@ -375,7 +375,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="assets/html5-qrcode.min.js"></script>
     <script>
         // Remplacer cette valeur par l'URL /exec du Web App Google Apps Script.
         // Le guide QR_GAME_SETUP.md est préconfiguré pour le Google Spreadsheet de l'événement.
@@ -384,7 +384,7 @@
         const STORAGE_PLAYER_KEY = 'qrGamePlayerName';
         const SCANNER_REGION_ID = 'reader';
         const SCAN_COOLDOWN_MS = 3000;
-        const CONFIRMATION_ATTEMPTS = 7;
+        const CONFIRMATION_ATTEMPTS = 4;
         const CONFIRMATION_DELAY_MS = 1200;
         const DEBUG_MODE = true;
 
@@ -503,7 +503,14 @@
                 html5QrCode = html5QrCode || new Html5Qrcode(SCANNER_REGION_ID, false);
                 await html5QrCode.start(
                     { facingMode: 'environment' },
-                    { fps: 10, qrbox: qrboxSize },
+                    {
+                        fps: 10,
+                        qrbox: qrboxSize,
+                        videoConstraints: {
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    },
                     onScanSuccess,
                     function() {}
                 );
@@ -565,12 +572,6 @@
                 const lookup = await jsonp({ action: 'lookup', code: code });
                 if (!lookup.success || !lookup.valid) {
                     showScanPopup('Ok bien tenté, mais ce code ne fait pas partie du jeu', code);
-                    return;
-                }
-
-                await refreshState(false);
-                if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
-                    showScanPopup('Tu ne peux pas valider plusieurs fois le même QR code', code);
                     return;
                 }
 
