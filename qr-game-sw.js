@@ -1,9 +1,11 @@
-const QR_GAME_CACHE = 'qr-game-v5';
+const QR_GAME_CACHE = 'qr-game-v6';
 const QR_GAME_ASSETS = [
   'qr-game.html',
   'qr-game.webmanifest',
-  'qr-game-icon.svg'
+  'qr-game-icon.svg',
+  'assets/html5-qrcode.min.js'
 ];
+const QR_LIBRARY_PATH = '/assets/html5-qrcode.min.js';
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -26,6 +28,23 @@ self.addEventListener('fetch', event => {
 
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+
+  // Librairie de scan : cache-first, le réseau sert uniquement à la mettre à jour.
+  if (requestUrl.pathname === QR_LIBRARY_PATH) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        const networkFetch = fetch(event.request).then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(QR_GAME_CACHE).then(cache => cache.put(event.request, copy));
+          }
+          return response;
+        }).catch(() => cached);
+        return cached || networkFetch;
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)
