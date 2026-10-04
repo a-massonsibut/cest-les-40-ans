@@ -312,8 +312,9 @@
         </nav>
 
         <section class="warning hidden" id="configWarning">
-            <strong>Configuration requise :</strong> ajoute l'URL du Web App Google Apps Script dans la constante
-            <code>QR_GAME_API_URL</code> de cette page. Le guide est dans <a href="QR_GAME_SETUP.md">QR_GAME_SETUP.md</a>.
+            <strong>Configuration requise :</strong> l'URL de l'API agnes-scan (Cloud Run) et sa clé
+            <code>x-api-key</code> doivent être renseignées dans les constantes
+            <code>QR_GAME_API_URL</code> et <code>QR_GAME_API_KEY</code> de cette page.
         </section>
 
         <div class="grid">
@@ -377,15 +378,13 @@
 
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
-        // Remplacer cette valeur par l'URL /exec du Web App Google Apps Script.
-        // Le guide QR_GAME_SETUP.md est préconfiguré pour le Google Spreadsheet de l'événement.
-        const QR_GAME_API_URL = 'https://script.google.com/macros/s/AKfycbxr_bbArIrKf8_aix7IGCjsxJ2uGdsw2ZF5SjHqS9Ulzc3OjMWsGDMYZRoY7WaqWmtYbQ/exec';
+        // API agnes-scan (Cloud Run) — spécification dans openapi.yaml.
+        const QR_GAME_API_URL = 'https://agnes-scan-430226272134.europe-west9.run.app';
+        const QR_GAME_API_KEY = 'd1874d969adfdb720f1c9b2642fd5bec271d84b77089ecc4';
 
         const STORAGE_PLAYER_KEY = 'qrGamePlayerName';
         const SCANNER_REGION_ID = 'reader';
         const SCAN_COOLDOWN_MS = 3000;
-        const CONFIRMATION_ATTEMPTS = 7;
-        const CONFIRMATION_DELAY_MS = 1200;
         const DEBUG_MODE = true;
 
         let playerName = '';
@@ -414,7 +413,7 @@
         };
 
         function isConfigured() {
-            return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(QR_GAME_API_URL);
+            return /^https:\/\/.+\.run\.app$/.test(QR_GAME_API_URL) && QR_GAME_API_KEY.length > 0;
         }
 
         function showScanPopup(message, scannedCode, canClose) {
@@ -562,28 +561,17 @@
             }
 
             try {
-                const lookup = await jsonp({ action: 'lookup', code: code });
-                if (!lookup.success || !lookup.valid) {
+                const result = await postScan(code);
+
+                if (result.statut === 'ok') {
+                    await refreshState(false);
+                    showScanPopup('Bien joué ! Tu gagnes ' + result.points + ' points. Ca te fait un total de ' + playerState.total, code);
+                } else if (result.statut === 'ko') {
+                    showScanPopup('Trop tard ! ' + (result.scannedBy ? result.scannedBy + ' a scanné ce code avant toi.' : 'Ce code a déjà été scanné par un autre joueur.'), code);
+                } else if (result.statut === 'unknown') {
                     showScanPopup('Ok bien tenté, mais ce code ne fait pas partie du jeu', code);
-                    return;
-                }
-
-                await refreshState(false);
-                if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
-                    showScanPopup('Tu ne peux pas valider plusieurs fois le même QR code', code);
-                    return;
-                }
-
-                const points = Number(lookup.points || 0);
-                showScanPopup('Scan en cours de vérification...', code, false);
-                await postScan(code);
-
-                const confirmed = await waitForScanConfirmation(code);
-                if (confirmed) {
-                    showScanPopup('Bien joué ! Tu gagnes ' + points + ' points. Ca te fait un total de ' + playerState.total, code);
                 } else {
-                    await refreshState();
-                    showScanPopup('Scan envoyé. Le score peut mettre quelques secondes à apparaître.', code);
+                    showScanPopup('Impossible de contacter le tableau des scores. Réessaie dans quelques secondes.', code);
                 }
             } catch (error) {
                 showScanPopup('Impossible de contacter le tableau des scores. Réessaie dans quelques secondes.', code);
@@ -591,35 +579,34 @@
         }
 
         async function postScan(code) {
-            const body = new URLSearchParams({
-                action: 'scan',
-                participant: playerName,
-                code: code
-            });
-
-            await fetch(QR_GAME_API_URL, {
+            const response = await fetch(QR_GAME_API_URL + '/scan', {
                 method: 'POST',
-                mode: 'no-cors',
-                body: body
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': QR_GAME_API_KEY
+                },
+                body: JSON.stringify({ code: code, nom: playerName })
             });
-        }
 
-        async function waitForScanConfirmation(code) {
-            for (let attempt = 0; attempt < CONFIRMATION_ATTEMPTS; attempt++) {
-                await sleep(CONFIRMATION_DELAY_MS);
-                await refreshState(false);
-                if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizeCode(code))) {
-                    return true;
-                }
+            if (response.status === 201) {
+                const data = await response.json();
+                return { statut: 'ok', points: Number(data.points || 0) };
             }
-            return false;
+            if (response.status === 409) {
+                const data = await response.json().catch(() => ({}));
+                return { statut: 'ko', scannedBy: data.scannedBy || '' };
+            }
+            if (response.status === 404) {
+                return { statut: 'unknown' };
+            }
+            throw new Error('scan_failed_' + response.status);
         }
 
         async function refreshState(showStatus) {
             if (!isConfigured()) {
                 elements.configWarning.classList.remove('hidden');
                 elements.startButton.disabled = true;
-                alert('Configuration Google Sheets requise avant de jouer.');
+                alert('Configuration API requise avant de jouer.');
                 return;
             }
 
@@ -633,16 +620,36 @@
                 elements.leaderboard.innerHTML = '<div class="list-item small">Chargement du classement...</div>';
             }
 
+            if (!playerName) {
+                playerState = { total: 0, scans: [], leaderboard: [] };
+                renderState();
+                if (!wasLoading) {
+                    elements.refreshButton.disabled = false;
+                    if (elements.refreshButton.dataset.label) {
+                        elements.refreshButton.textContent = elements.refreshButton.dataset.label;
+                        delete elements.refreshButton.dataset.label;
+                    }
+                }
+                return;
+            }
+
             try {
-                const data = await jsonp({
-                    action: 'status',
-                    participant: playerName || ''
-                });
-                if (!data.success) throw new Error('status_failed');
+                const [playerResponse, leaderboardResponse] = await Promise.all([
+                    fetch(QR_GAME_API_URL + '/player?nom=' + encodeURIComponent(playerName) + '&details=true', {
+                        headers: { 'x-api-key': QR_GAME_API_KEY }
+                    }),
+                    fetch(QR_GAME_API_URL + '/leaderboard', {
+                        headers: { 'x-api-key': QR_GAME_API_KEY }
+                    })
+                ]);
+                if (!playerResponse.ok) throw new Error('status_failed_' + playerResponse.status);
+                const data = await playerResponse.json();
+                const leaderboardData = leaderboardResponse.ok ? await leaderboardResponse.json() : { leaderboard: [] };
+
                 playerState = {
-                    total: Number(data.total || 0),
+                    total: Number(data.score || 0),
                     scans: Array.isArray(data.scans) ? data.scans : [],
-                    leaderboard: Array.isArray(data.leaderboard) ? data.leaderboard : []
+                    leaderboard: Array.isArray(leaderboardData.leaderboard) ? leaderboardData.leaderboard : []
                 };
                 renderState();
             } catch (error) {
@@ -662,7 +669,7 @@
 
         function renderState() {
             elements.playerScore.textContent = playerState.total;
-            elements.playerScanCount.textContent = playerState.scans.length;
+            elements.playerScanCount.textContent = playerState.scans.filter(scan => scan.statut === 'ok').length;
             renderLeaderboard();
         }
 
@@ -676,45 +683,9 @@
             playerState.leaderboard.forEach((entry, index) => {
                 const div = document.createElement('div');
                 div.className = 'list-item';
-                div.innerHTML = '<strong>#' + (index + 1) + ' ' + escapeHtml(entry.participant) + '</strong><br>' + escapeHtml(entry.total) + ' points · ' + escapeHtml(entry.count) + ' QR';
+                div.innerHTML = '<strong>#' + (index + 1) + ' ' + escapeHtml(entry.nom) + '</strong><br>' + escapeHtml(entry.score) + ' points';
                 elements.leaderboard.appendChild(div);
             });
-        }
-
-        function jsonp(params) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'qrGameCallback' + Date.now() + Math.floor(Math.random() * 1000);
-                const script = document.createElement('script');
-                const urlParams = new URLSearchParams(params);
-                urlParams.set('callback', callbackName);
-
-                const timeout = window.setTimeout(() => {
-                    cleanup();
-                    reject(new Error('jsonp_timeout'));
-                }, 10000);
-
-                function cleanup() {
-                    window.clearTimeout(timeout);
-                    delete window[callbackName];
-                    if (script.parentNode) script.parentNode.removeChild(script);
-                }
-
-                window[callbackName] = data => {
-                    cleanup();
-                    resolve(data || {});
-                };
-
-                script.onerror = () => {
-                    cleanup();
-                    reject(new Error('jsonp_error'));
-                };
-                script.src = QR_GAME_API_URL + '?' + urlParams.toString() + '&cacheBust=' + Date.now();
-                document.body.appendChild(script);
-            });
-        }
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         function escapeHtml(value) {
