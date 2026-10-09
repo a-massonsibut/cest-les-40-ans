@@ -883,7 +883,11 @@
                                 Chaque QR code rapporte des points, et le classement se met à jour automatiquement.
                             </p>
                             <p style="text-align: center; color: #FFD700; font-weight: bold;">
-                                📱 Le scanner QR sera activé plus tard. Reviens ici le jour J !
+                                📱 La chasse commence à 16h00 ! Ouverture du scanner dans :<br>
+                                <span id="qrCountdown" style="font-size: 22px; display: inline-block; margin-top: 6px;">--:--:--</span>
+                            </p>
+                            <p style="text-align: center;">
+                                <a id="qrGameButton" class="rsvp-button" style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">🚀 LANCER LA CHASSE</a>
                             </p>
                         </div>
                     </div>
@@ -1452,8 +1456,39 @@
             });
         });
 
+        // ===== CHASSE AUX QR CODES : COMPTE À REBOURS =====
+        const QR_GAME_LAUNCH_ISO = '2026-10-09T16:00:00+02:00';
+        function startQrGameCountdown() {
+            const countdownElement = document.getElementById('qrCountdown');
+            const button = document.getElementById('qrGameButton');
+            if (!countdownElement || !button) return;
+            const launchTime = new Date(QR_GAME_LAUNCH_ISO).getTime();
+            function pad(value) {
+                return String(value).padStart(2, '0');
+            }
+            function tick() {
+                const remaining = launchTime - Date.now();
+                if (remaining <= 0) {
+                    countdownElement.textContent = '00:00:00';
+                    countdownElement.parentElement.innerHTML = '🚀 C\u2019EST PARTI ! La chasse est ouverte !';
+                    button.href = 'qr-game.html';
+                    button.style.opacity = '1';
+                    button.style.cursor = 'pointer';
+                    button.style.pointerEvents = 'auto';
+                    return;
+                }
+                const hours = Math.floor(remaining / 3600000);
+                const minutes = Math.floor((remaining % 3600000) / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                countdownElement.textContent = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
+
         // ===== INITIALISATION =====
         startCountdown();
+        startQrGameCountdown();
         updateCounters();
         loadGuestbookMessages();
         setInterval(updateVisitorCounter, 15000);
