@@ -560,7 +560,7 @@
             const normalizedCode = normalizeCode(code);
             showScanPopup('Scan en cours de vérification...', code, false);
 
-            if (playerState.scans.some(scan => normalizeCode(scan.code) === normalizedCode)) {
+            if (playerState.scans.some(scan => scan.statut === 'ok' && normalizeCode(scan.code) === normalizedCode)) {
                 showScanPopup('Tu ne peux pas valider plusieurs fois le même QR code', code);
                 return;
             }
@@ -571,8 +571,8 @@
                 if (result.statut === 'ok') {
                     await refreshState(false);
                     showScanPopup('Bien joué ! Tu gagnes ' + result.points + ' points. Ca te fait un total de ' + playerState.total, code);
-                } else if (result.statut === 'ko') {
-                    showScanPopup('Trop tard ! ' + (result.scannedBy ? result.scannedBy + ' a scanné ce code avant toi.' : 'Ce code a déjà été scanné par un autre joueur.'), code);
+                } else if (result.statut === 'doublon') {
+                    showScanPopup('Tu as déjà scanné ce QR code. Trouve-en un nouveau !', code);
                 } else if (result.statut === 'unknown') {
                     showScanPopup('Ok bien tenté, mais ce code ne fait pas partie du jeu', code);
                 } else {
@@ -598,8 +598,7 @@
                 return { statut: 'ok', points: Number(data.points || 0) };
             }
             if (response.status === 409) {
-                const data = await response.json().catch(() => ({}));
-                return { statut: 'ko', scannedBy: data.scannedBy || '' };
+                return { statut: 'doublon' };
             }
             if (response.status === 404) {
                 return { statut: 'unknown' };

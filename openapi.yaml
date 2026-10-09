@@ -1,0 +1,363 @@
+openapi: 3.1.0
+info:
+  title: Agnes Scan API
+  description: |
+    API du jeu de chasse aux QR codes. Les joueurs scannent des codes QR
+    pour marquer des points. Chaque joueur ne peut valider un code QR
+    qu'une seule fois : les scans suivants du même joueur sont rejetés
+    avec une erreur `409`. Deux joueurs différents peuvent valider le
+    même code QR (chacun gagne les points).
+
+    Un lot d'export (batch) synchronise périodiquement les scans et les
+    scores consolidés vers un Google Spreadsheet.
+
+    Un endpoint d'administration (`/reset`) permet de réinitialiser
+    complètement le jeu (base de données + tableur), protégé par un
+    mot de passe.
+
+    **CORS** : les requêtes navigateur sont autorisées uniquement depuis
+    `https://a-massonsibut.github.io` (le preflight `OPTIONS` est géré).
+  version: 1.3.0
+servers:
+  - url: https://agnes-scan-430226272134.europe-west9.run.app
+    description: Production (Cloud Run)
+tags:
+  - name: scan
+    description: Enregistrement des scans
+  - name: player
+    description: Consultation des scores et classement
+  - name: admin
+    description: Administration du jeu
+
+paths:
+  /scan:
+    post:
+      tags: [scan]
+      operationId: scanCode
+      summary: Enregistre le scan d'un code QR par un joueur
+      description: |
+        Vérifie que le code existe dans la liste des codes valides, puis
+        l'enregistre de façon atomique (transaction Firestore).
+
+        - **Premier scan du code par ce joueur** : le scan est validé
+          (`statut: ok`), le joueur gagne les points du code. Réponse `201`.
+        - **Code déjà scanné par ce joueur** : la tentative est rejetée.
+          Réponse `409`. Un autre joueur peut toujours valider le même code.
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, nom]
+              properties:
+                code:
+                  type: string
+                  description: Identifiant du code QR scanné (ex. `QR_8792`).
+                  example: QR_8792
+                nom:
+                  type: string
+                  description: Nom du joueur qui scanne.
+                  example: joueur_1
+      responses:
+        "201":
+          description: Scan validé, points crédités.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Code enregistré
+                  code:
+                    type: string
+                    example: QR_8792
+                  nom:
+                    type: string
+                    example: joueur_1
+                  points:
+                    type: integer
+                    description: Points gagnés (dépend du code).
+                    example: 10
+                  statut:
+                    type: string
+                    enum: [ok]
+                    example: ok
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Code inconnu (non présent dans la liste des codes valides).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Code inconnu
+        "409":
+          description: |
+            Code déjà scanné par ce joueur (les autres joueurs peuvent
+            toujours le valider). Aucun point n'est crédité.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Code déjà scanné par ce joueur
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /reset:
+    post:
+      tags: [admin]
+      operationId: resetGame
+      summary: Réinitialise complètement le jeu (réservé aux organisateurs)
+      description: |
+        Efface tous les scans de la base Firestore puis lance le batch
+        de synchronisation en mode reset, qui vide les onglets `logs`
+        et `score` du Google Spreadsheet.
+
+        Protégé par un double contrôle :
+        - la clé API (`x-api-key`, middleware global) ;
+        - un mot de passe d'organisateur transmis dans le corps de la
+          requête, comparé à la variable d'environnement `RESET_PASSWORD`
+          du service (comparaison en temps constant).
+
+        Action irréversible. La réponse `200` est renvoyée dès le
+        lancement du batch : le vidage du tableur se termine environ
+        une minute plus tard en arrière-plan.
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  description: Mot de passe organisateur (variable d'environnement `RESET_PASSWORD`).
+                  example: motDePasseSecret
+      responses:
+        "200":
+          description: Reset effectué (base vidée, batch de reset du tableur lancé).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reset effectué
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Clé API invalide/manquante OU mot de passe invalide.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Mot de passe invalide
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /player:
+    get:
+      tags: [player]
+      operationId: getPlayer
+      summary: Récupère le score d'un joueur
+      description: |
+        Retourne le score consolidé du joueur (somme des points des scans
+        validés `ok` uniquement). Avec `details=true`, retourne aussi la
+        liste des scans du joueur, triée chronologiquement.
+
+        Un joueur sans aucun scan retourne un score de `0`.
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: nom
+          in: query
+          required: true
+          description: Nom du joueur (URL-encodé si caractères spéciaux).
+          schema:
+            type: string
+          example: joueur_1
+        - name: details
+          in: query
+          required: false
+          description: |
+            Si `true`, la réponse inclut la liste des scans validés du
+            joueur, triés chronologiquement.
+            Si absent ou `false`, seul le score est retourné.
+          schema:
+            type: string
+            enum: ["true", "false"]
+            default: "false"
+          example: "true"
+      responses:
+        "200":
+          description: Score du joueur (et scans si `details=true`).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PlayerScore"
+                  - $ref: "#/components/schemas/PlayerScoreDetails"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard:
+    get:
+      tags: [player]
+      operationId: getLeaderboard
+      summary: Classement des joueurs par score décroissant
+      description: |
+        Retourne la liste de tous les joueurs ayant au moins un scan validé,
+        classés par score décroissant. Seuls les scans validés (`statut: ok`)
+        sont comptabilisés. Un même code validé par plusieurs joueurs compte
+        dans le score de chacun.
+      security:
+        - apiKeyAuth: []
+      responses:
+        "200":
+          description: Classement des joueurs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leaderboard:
+                    type: array
+                    description: Joueurs triés par score décroissant.
+                    items:
+                      $ref: "#/components/schemas/LeaderboardEntry"
+              example:
+                leaderboard:
+                  - nom: joueur_3
+                    score: 140
+                  - nom: joueur_2
+                    score: 50
+                  - nom: joueur_1
+                    score: 30
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: |
+        Clé API requise sur tous les endpoints. La valeur attendue est
+        définie par la variable d'environnement `API_KEY` du service.
+
+  schemas:
+    Scan:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Identifiant du code QR.
+          example: QR_8792
+        points:
+          type: integer
+          description: Points du code.
+          example: 10
+        statut:
+          type: string
+          enum: [ok]
+          description: |
+            `ok` : scan validé. Un même joueur ne peut valider un code
+            qu'une seule fois ; les scans en double sont rejetés en `409`.
+          example: ok
+        scannedAt:
+          type: string
+          format: date-time
+          description: Date et heure du scan (ISO 8601, UTC).
+          example: "2026-10-04T13:32:10.475Z"
+
+    PlayerScore:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: joueur_1
+        score:
+          type: integer
+          description: Somme des points des scans validés (statut `ok`).
+          example: 30
+
+    PlayerScoreDetails:
+      allOf:
+        - $ref: "#/components/schemas/PlayerScore"
+        - type: object
+          properties:
+            scans:
+              type: array
+              description: Tous les scans validés du joueur, triés chronologiquement.
+              items:
+                $ref: "#/components/schemas/Scan"
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        nom:
+          type: string
+          description: Nom du joueur.
+          example: joueur_3
+        score:
+          type: integer
+          description: Somme des points des scans validés (statut `ok`).
+          example: 140
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message d'erreur.
+          example: "Paramètres requis : code, nom"
+
+  responses:
+    BadRequest:
+      description: Paramètres manquants ou invalides.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Paramètres requis : code, nom"
+    Unauthorized:
+      description: Clé API manquante ou invalide (header `x-api-key`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Clé API invalide ou manquante"
+    InternalServerError:
+      description: Erreur interne (Firestore indisponible, etc.).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Erreur interne
