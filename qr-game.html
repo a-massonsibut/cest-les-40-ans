@@ -354,11 +354,15 @@
                         <strong id="playerScanCount">0</strong>
                         <span>QR scannés</span>
                     </div>
+                    <div class="score-box">
+                        <strong id="playerRank">–</strong>
+                        <span>position</span>
+                    </div>
                 </div>
 
-                <h2 style="margin-top: 14px;">🥇 Classement</h2>
+                <h2 style="margin-top: 14px;">🥇 Ton classement</h2>
                 <div class="list" id="leaderboard">
-                    <div class="list-item small">Classement en attente.</div>
+                    <div class="list-item small">Enregistre ton prénom pour voir ta position.</div>
                 </div>
             </aside>
         </div>
@@ -393,7 +397,7 @@
         let scanInProgress = false;
         let lastScannedCode = '';
         let lastScanAt = 0;
-        let playerState = { total: 0, scans: [], leaderboard: [] };
+        let playerState = { total: 0, scans: [], rank: null, playerCount: 0 };
 
         const elements = {
             configWarning: document.getElementById('configWarning'),
@@ -405,6 +409,7 @@
             refreshButton: document.getElementById('refreshButton'),
             playerScore: document.getElementById('playerScore'),
             playerScanCount: document.getElementById('playerScanCount'),
+            playerRank: document.getElementById('playerRank'),
             leaderboard: document.getElementById('leaderboard'),
             scanPopup: document.getElementById('scanPopup'),
             scanPopupMessage: document.getElementById('scanPopupMessage'),
@@ -617,11 +622,11 @@
                 elements.refreshButton.disabled = true;
                 elements.refreshButton.dataset.label = elements.refreshButton.textContent;
                 elements.refreshButton.textContent = '⏳ Chargement...';
-                elements.leaderboard.innerHTML = '<div class="list-item small">Chargement du classement...</div>';
+                elements.leaderboard.innerHTML = '<div class="list-item small">Chargement de ta position...</div>';
             }
 
             if (!playerName) {
-                playerState = { total: 0, scans: [], leaderboard: [] };
+                playerState = { total: 0, scans: [], rank: null, playerCount: 0 };
                 renderState();
                 if (!wasLoading) {
                     elements.refreshButton.disabled = false;
@@ -645,11 +650,19 @@
                 if (!playerResponse.ok) throw new Error('status_failed_' + playerResponse.status);
                 const data = await playerResponse.json();
                 const leaderboardData = leaderboardResponse.ok ? await leaderboardResponse.json() : { leaderboard: [] };
+                const entries = Array.isArray(leaderboardData.leaderboard) ? leaderboardData.leaderboard : [];
+                const sorted = entries.slice().sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+                const myIndex = sorted.findIndex(entry => entry.nom === playerName);
+                const myScore = Number(data.score || 0);
+                const rank = myIndex >= 0
+                    ? myIndex + 1
+                    : (sorted.filter(entry => Number(entry.score || 0) > myScore).length + 1);
 
                 playerState = {
-                    total: Number(data.score || 0),
+                    total: myScore,
                     scans: Array.isArray(data.scans) ? data.scans : [],
-                    leaderboard: Array.isArray(leaderboardData.leaderboard) ? leaderboardData.leaderboard : []
+                    rank: rank,
+                    playerCount: sorted.length
                 };
                 renderState();
             } catch (error) {
@@ -675,17 +688,23 @@
 
         function renderLeaderboard() {
             elements.leaderboard.innerHTML = '';
-            if (!playerState.leaderboard.length) {
-                elements.leaderboard.innerHTML = '<div class="list-item small">Aucun score pour le moment.</div>';
+            if (!playerName) {
+                elements.playerRank.textContent = '–';
+                elements.leaderboard.innerHTML = '<div class="list-item small">Enregistre ton prénom pour voir ta position.</div>';
+                return;
+            }
+            if (playerState.rank === null) {
+                elements.playerRank.textContent = '–';
+                elements.leaderboard.innerHTML = '<div class="list-item small">Position indisponible pour le moment.</div>';
                 return;
             }
 
-            playerState.leaderboard.forEach((entry, index) => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = '<strong>#' + (index + 1) + ' ' + escapeHtml(entry.nom) + '</strong><br>' + escapeHtml(entry.score) + ' points';
-                elements.leaderboard.appendChild(div);
-            });
+            elements.playerRank.textContent = '#' + playerState.rank;
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = '<strong>Tu es #' + playerState.rank + '</strong><br>' +
+                escapeHtml(playerState.total) + ' points — sur ' + escapeHtml(playerState.playerCount) + ' joueur(s)';
+            elements.leaderboard.appendChild(div);
         }
 
         function escapeHtml(value) {
