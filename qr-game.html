@@ -504,7 +504,12 @@
             if (scannerRunning) return;
 
             try {
-                html5QrCode = html5QrCode || new Html5Qrcode(SCANNER_REGION_ID, false);
+                if (html5QrCode) {
+                    try { await html5QrCode.stop(); } catch (error) {}
+                    try { html5QrCode.clear(); } catch (error) {}
+                    html5QrCode = null;
+                }
+                html5QrCode = new Html5Qrcode(SCANNER_REGION_ID, false);
                 await html5QrCode.start(
                     { facingMode: 'environment' },
                     { fps: 10, qrbox: qrboxSize },
